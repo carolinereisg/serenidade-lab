@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rede de Profissionais Capacitados — Serenidade Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --roxo-escuro: #2D0A4E;
+    --roxo-medio: #5B2D8E;
+    --roxo-claro: #8B5CC8;
+    --roxo-suave: #C4A8E8;
+    --laranja: #F5630A;
+    --laranja-claro: #FF8C42;
+    --creme: #FDF8F2;
+    --branco: #FFFFFF;
+    --cinza-escuro: #1A1A2E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--creme);
+    color: var(--roxo-escuro);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--roxo-escuro);
+    padding: 60px 5vw 50px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(245,99,10,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--roxo-suave);
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover { color: var(--laranja-claro); }
+
+  .hero-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--laranja-claro);
+    border: 1px solid rgba(255,140,66,0.35);
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: var(--branco);
+    line-height: 1.1;
+    max-width: 680px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span { color: var(--laranja); font-style: italic; }
+
+  .hero-sub {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--roxo-suave);
+    max-width: 540px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--laranja);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--roxo-suave);
+    margin-top: 4px;
+  }
+
+  /* ── FILTROS ── */
+  .filtros-bar {
+    background: white;
+    padding: 20px 5vw;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 1px solid rgba(45,10,78,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(45,10,78,0.06);
+  }
+
+  .filtros-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--roxo-claro);
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  .filtro-pill {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--roxo-medio);
+    background: transparent;
+    border: 1.5px solid rgba(91,45,142,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .filtro-pill:hover {
+    border-color: var(--roxo-claro);
+    background: rgba(91,45,142,0.05);
+  }
+
+  .filtro-pill.ativo {
+    background: var(--roxo-escuro);
+    color: white;
+    border-color: var(--roxo-escuro);
+  }
+
+  .busca-input {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--creme);
+    border: 1.5px solid rgba(91,45,142,0.15);
+    border-radius: 100px;
+    padding: 7px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .busca-input:focus-within {
+    border-color: var(--roxo-claro);
+  }
+
+  .busca-input input {
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--roxo-escuro);
+    outline: none;
+    width: 180px;
+  }
+
+  .busca-input input::placeholder { color: #aaa; }
+
+  .busca-input svg { color: #aaa; flex-shrink: 0; }
+
+  /* ── LAYOUT ── */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    height: calc(100vh - 160px);
+    min-height: 500px;
+  }
+
+  @media (max-width: 768px) {
+    .main-layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: 340px 1fr;
+      height: auto;
+    }
+  }
+
+  /* ── LISTA ── */
+  .lista-panel {
+    overflow-y: auto;
+    border-right: 1px solid rgba(45,10,78,0.08);
+    scrollbar-width: thin;
+    scrollbar-color: var(--roxo-suave) transparent;
+  }
+
+  @media (max-width: 768px) {
+    .lista-panel { order: 2; max-height: 420px; border-right: none; border-top: 1px solid rgba(45,10,78,0.08); }
+  }
+
+  .lista-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid rgba(45,10,78,0.06);
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 2;
+  }
+
+  .lista-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--roxo-claro);
+  }
+
+  .prof-card {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(45,10,78,0.05);
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .prof-card:hover { background: rgba(91,45,142,0.04); }
+  .prof-card.ativo { background: rgba(245,99,10,0.06); border-left: 3px solid var(--laranja); }
+
+  .prof-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--roxo-medio), var(--roxo-claro));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .prof-info { flex: 1; min-width: 0; }
+
+  .prof-nome {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--roxo-escuro);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .prof-cidade {
+    font-size: 0.78rem;
+    color: #888;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .prof-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .prof-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  .prof-tag.vce {
+    color: var(--roxo-claro);
+    background: rgba(139,92,200,0.1);
+  }
+
+  .prof-tag.pelvico {
+    color: var(--laranja);
+    background: rgba(245,99,10,0.1);
+  }
+
+  .sem-resultados-lista {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--roxo-claro);
+    font-size: 0.9rem;
+  }
+
+  /* ── MAPA ── */
+  .mapa-panel {
+    position: relative;
+  }
+
+  @media (max-width: 768px) {
+    .mapa-panel { order: 1; }
+  }
+
+  #mapa {
+    width: 100%;
+    height: 100%;
+    min-height: 340px;
+  }
+
+  /* Leaflet customization */
+  .leaflet-popup-content-wrapper {
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(45,10,78,0.18) !important;
+    border: none !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+
+  .leaflet-popup-content {
+    margin: 0 !important;
+    width: 220px !important;
+  }
+
+  .leaflet-popup-tip-container { display: none; }
+
+  .popup-inner {
+    padding: 16px 18px 14px;
+  }
+
+  .popup-nome {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--roxo-escuro);
+    margin-bottom: 4px;
+  }
+
+  .popup-cidade {
+    font-size: 0.78rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .popup-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .popup-ig {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--laranja);
+    text-decoration: none;
+    border-top: 1px solid rgba(45,10,78,0.07);
+    padding-top: 10px;
+    transition: color 0.2s;
+  }
+
+  .popup-ig:hover { color: var(--laranja-claro); }
+
+  /* Custom pin */
+  .pin-vce { background: var(--roxo-medio); }
+  .pin-pelvico { background: var(--laranja); }
+  .pin-ambos { background: linear-gradient(135deg, var(--roxo-medio), var(--laranja)); }
+
+  .custom-pin {
+    width: 32px; height: 32px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── SEÇÃO CADASTRO ── */
+  .cadastro-section {
+    background: var(--roxo-escuro);
+    padding: 60px 5vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cadastro-section::before {
+    content: '';
+    position: absolute;
+    bottom: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(245,99,10,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cadastro-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+    max-width: 900px;
+  }
+
+  @media (max-width: 640px) {
+    .cadastro-inner { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  .cadastro-titulo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .cadastro-titulo span { color: var(--laranja); font-style: italic; }
+
+  .cadastro-sub {
+    font-size: 0.9rem;
+    color: var(--roxo-suave);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .cadastro-req {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .req-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.65);
+  }
+
+  .req-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--laranja);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  /* Formulário */
+  .form-cadastro {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--roxo-suave);
+  }
+
+  .form-input {
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: white;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .form-input::placeholder { color: rgba(255,255,255,0.3); }
+
+  .form-input:focus {
+    border-color: var(--laranja);
+    background: rgba(255,255,255,0.1);
+  }
+
+  .form-checkboxes {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .form-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+  }
+
+  .form-checkbox-label input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--laranja);
+    cursor: pointer;
+  }
+
+  .btn-cadastro {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--laranja), #E8450A);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 13px 28px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 18px rgba(245,99,10,0.35);
+    margin-top: 4px;
+  }
+
+  .btn-cadastro:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(245,99,10,0.45);
+  }
+
+  .form-sucesso {
+    display: none;
+    padding: 20px;
+    background: rgba(245,99,10,0.12);
+    border: 1px solid rgba(245,99,10,0.3);
+    border-radius: 14px;
+    text-align: center;
+    color: var(--laranja-claro);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--cinza-escuro, #1A1A2E);
+    padding: 32px 5vw;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+  }
+
+  .footer-logo span { color: var(--laranja); }
+
+  .footer-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-back:hover { color: var(--laranja-claro); }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <a href="serenidade-lab.html" class="back-link">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Voltar aos cursos
+  </a>
+  <span class="hero-badge">Serenidade Lab · Rede de Profissionais</span>
+  <h1>Profissionais<br>capacitados em<br><span>VCE e Parto Pélvico</span></h1>
+  <p class="hero-sub">Encontre um profissional treinado e capacitado por Caroline Reis na sua cidade — no Brasil e no mundo.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num" id="total-count">0</span>
+      <span class="stat-label">Profissionais</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="cidades-count">0</span>
+      <span class="stat-label">Cidades</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="paises-count">0</span>
+      <span class="stat-label">Países</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FILTROS ══ -->
+<div class="filtros-bar">
+  <span class="filtros-label">Filtrar por</span>
+  <button class="filtro-pill ativo" data-filtro="todos">Todos</button>
+  <button class="filtro-pill" data-filtro="vce">VCE</button>
+  <button class="filtro-pill" data-filtro="pelvico">Parto Pélvico</button>
+  <div class="busca-input">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="busca" placeholder="Buscar por nome ou cidade…">
+  </div>
+</div>
+
+<!-- ══ LAYOUT MAPA + LISTA ══ -->
+<div class="main-layout">
+
+  <!-- Lista -->
+  <div class="lista-panel">
+    <div class="lista-header">
+      <span class="lista-count" id="lista-count">Carregando…</span>
+    </div>
+    <div id="lista-profissionais"></div>
+  </div>
+
+  <!-- Mapa -->
+  <div class="mapa-panel">
+    <div id="mapa"></div>
+  </div>
+
+</div>
+
+<!-- ══ CADASTRO ══ -->
+<section class="cadastro-section">
+  <div class="cadastro-inner">
+    <div>
+      <span style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--laranja-claro);margin-bottom:16px;display:block;">// Faça parte da rede</span>
+      <h2 class="cadastro-titulo">Foi capacitada(o)<br>por <span>Caroline Reis</span>?</h2>
+      <p class="cadastro-sub">Se você fez um dos cursos presenciais de VCE ou Parto Pélvico Emergencial e quer aparecer no mapa, preencha o formulário. Sua inscrição será verificada e adicionada em breve.</p>
+      <div class="cadastro-req">
+        <div class="req-item"><div class="req-dot"></div>Ter participado de um curso presencial de VCE ou PPE ministrado por Caroline Reis</div>
+        <div class="req-item"><div class="req-dot"></div>Ter um perfil ativo no Instagram</div>
+        <div class="req-item"><div class="req-dot"></div>Atuar ativamente na área obstétrica</div>
+      </div>
+    </div>
+
+    <form class="form-cadastro" id="form-cadastro" onsubmit="enviarCadastro(event)">
+      <div class="form-group">
+        <label class="form-label">Nome completo</label>
+        <input class="form-input" type="text" name="nome" placeholder="Dra. Ana Silva" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cidade e estado</label>
+        <input class="form-input" type="text" name="cidade" placeholder="Belo Horizonte, MG" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">País</label>
+        <input class="form-input" type="text" name="pais" placeholder="Brasil" value="Brasil">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Instagram</label>
+        <input class="form-input" type="text" name="instagram" placeholder="@seunome" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Capacitação</label>
+        <div class="form-checkboxes">
+          <label class="form-checkbox-label">
+            <input type="checkbox" name="cap_vce" value="vce"> VCE
+          </label>
+          <label class="form-checkbox-label">
+            <input type="checkbox" name="cap_pelvico" value="pelvico"> Parto Pélvico
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn-cadastro">
+        Solicitar inclusão no mapa
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="form-sucesso" id="form-sucesso">
+        ✅ Solicitação enviada! Caroline Reis vai revisar seus dados e você será adicionada(o) em breve.
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-logo">Serenidade<span>Lab</span></div>
+  <a href="serenidade-lab.html" class="footer-back">← Voltar aos cursos</a>
+</footer>
+
+<script>
+  // ══════════════════════════════════════════════════════
+  // CONFIGURAÇÃO — cole aqui o link CSV da sua planilha
+  // ══════════════════════════════════════════════════════
+  // 1. Abra sua planilha no Google Sheets
+  // 2. Vá em Arquivo → Compartilhar → Publicar na web
+  // 3. Escolha a aba → formato CSV → clique em Publicar
+  // 4. Cole o link gerado abaixo:
+  const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRvTpr0sb12IbD2Vw73f-Wzi3pGhmpI9PENRof3en8c4UtfQuoqkukI_-qPDl6Vq1m7FN2EVUsTOdM9/pub?output=csv';
+
+  // Colunas esperadas na planilha (primeira linha = cabeçalho):
+  // nome | cidade | estado | pais | instagram | vce | pelvico
+  // vce e pelvico aceitam: sim / s / yes / 1 / x
+  // ══════════════════════════════════════════════════════
+
+  // Cache de geocodificação para não repetir chamadas
+  const geoCache = {};
+
+  // ══ ESTADO ══
+  let profissionais = [];
+  let filtroAtivo   = 'todos';
+  let buscaAtiva    = '';
+  let marcadores    = [];
+  let cardAtivo     = null;
+
+  // ══ MAPA ══
+  const mapa = L.map('mapa', { center: [-14, -52], zoom: 4 });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 19,
+  }).addTo(mapa);
+
+  // ══ PARSE CSV ══
+  function parseCSV(text) {
+    const linhas = text.trim().split('\n');
+    if (linhas.length < 2) return [];
+    const cabecalho = linhas[0].split(',').map(c => c.trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')); // remove acentos do header
+    return linhas.slice(1).map(linha => {
+      // Suporte a campos com vírgula dentro de aspas
+      const cols = [];
+      let cur = '', dentro = false;
+      for (const ch of linha) {
+        if (ch === '"') { dentro = !dentro; }
+        else if (ch === ',' && !dentro) { cols.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      cols.push(cur.trim());
+      const obj = {};
+      cabecalho.forEach((h, i) => obj[h] = (cols[i] || '').replace(/^"|"$/g,'').trim());
+      return obj;
+    }).filter(r => r.nome); // ignora linhas vazias
+  }
+
+  function isTrue(val) {
+    return ['sim','s','yes','1','x'].includes((val||'').toLowerCase().trim());
+  }
+
+  // ══ GEOCODIFICAÇÃO via Nominatim ══
+  async function geocodificar(cidade, estado, pais) {
+    const chave = `${cidade},${estado},${pais}`;
+    if (geoCache[chave]) return geoCache[chave];
+
+    // Monta query legível
+    const q = [cidade, estado, pais].filter(Boolean).join(', ');
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`;
+
+    try {
+      const res  = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      if (data && data[0]) {
+        const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        geoCache[chave] = coords;
+        return coords;
+      }
+    } catch (e) { console.warn('Geocoding falhou para:', q); }
+
+    return null;
+  }
+
+  // ══ CARREGAR PLANILHA ══
+  async function carregarPlanilha() {
+    document.getElementById('lista-count').textContent = 'Carregando profissionais…';
+
+    if (!SHEETS_CSV_URL) {
+      // Modo demo — dados de exemplo enquanto a planilha não está configurada
+      profissionais = [
+        { nome: 'Caroline Reis', cidade: 'Belo Horizonte', estado: 'MG', pais: 'Brasil', instagram: '@carolinereisg', caps: ['vce', 'pelvico'], lat: -19.9167, lng: -43.9345 },
+      ];
+      atualizarStats();
+      renderizar();
+      document.getElementById('lista-count').textContent =
+        '⚠️ Configure a planilha no código para carregar dados reais';
+      return;
+    }
+
+    try {
+      const res  = await fetch(SHEETS_CSV_URL);
+      const text = await res.text();
+      const rows = parseCSV(text);
+
+      // Geocodifica cada profissional (com pequeno delay para respeitar rate limit do Nominatim)
+      const lista = [];
+      for (const row of rows) {
+        const caps = [];
+        if (isTrue(row.vce))     caps.push('vce');
+        if (isTrue(row.pelvico)) caps.push('pelvico');
+        if (caps.length === 0)   continue; // ignora sem capacitação marcada
+
+        let lat = parseFloat(row.lat);
+        let lng = parseFloat(row.lng);
+
+        // Se não tem coordenadas na planilha, geocodifica
+        if (!lat || !lng) {
+          const coords = await geocodificar(row.cidade, row.estado, row.pais || 'Brasil');
+          if (coords) { lat = coords.lat; lng = coords.lng; }
+          else { continue; } // pula se não encontrou
+          await new Promise(r => setTimeout(r, 400)); // respeita rate limit Nominatim
+        }
+
+        lista.push({
+          nome: row.nome,
+          cidade: row.cidade,
+          estado: row.estado || '',
+          pais: row.pais || 'Brasil',
+          instagram: row.instagram || '',
+          caps,
+          lat,
+          lng,
+        });
+      }
+
+      profissionais = lista;
+      atualizarStats();
+      renderizar();
+
+    } catch (e) {
+      document.getElementById('lista-count').textContent = '⚠️ Erro ao carregar a planilha. Verifique o link.';
+      console.error(e);
+    }
+  }
+
+  // ══ ÍCONE ══
+  function criarIcone(caps) {
+    const cor = caps.includes('vce') && caps.includes('pelvico')
+      ? '#7B3FD0' : caps.includes('vce') ? '#8B5CC8' : '#F5630A';
+    return L.divIcon({
+      html: `<div style="width:28px;height:28px;background:${cor};border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.22);"></div>`,
+      className: '',
+      iconSize: [28, 28],
+      iconAnchor: [14, 28],
+      popupAnchor: [0, -30],
+    });
+  }
+
+  // ══ POPUP ══
+  function criarPopup(p) {
+    const tagsHtml = p.caps.map(c =>
+      `<span style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:100px;${c==='vce'?'color:#8B5CC8;background:rgba(139,92,200,0.1)':'color:#F5630A;background:rgba(245,99,10,0.1)'}">
+        ${c === 'vce' ? 'VCE' : 'Parto Pélvico'}</span>`
+    ).join('');
+    const ig = p.instagram ? `<a href="https://instagram.com/${p.instagram.replace('@','')}" target="_blank" class="popup-ig">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+      ${p.instagram}</a>` : '';
+    return `<div class="popup-inner">
+      <div class="popup-nome">${p.nome}</div>
+      <div class="popup-cidade">
+        <svg width="10" height="10" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        ${p.cidade}${p.estado ? ', ' + p.estado : ''}${p.pais !== 'Brasil' ? ' · ' + p.pais : ''}
+      </div>
+      <div class="popup-tags">${tagsHtml}</div>
+      ${ig}
+    </div>`;
+  }
+
+  // ══ FILTRADOS ══
+  function profsFiltrados() {
+    return profissionais.filter(p => {
+      const matchFiltro = filtroAtivo === 'todos' || p.caps.includes(filtroAtivo);
+      const busca = buscaAtiva.toLowerCase();
+      const matchBusca = !busca ||
+        p.nome.toLowerCase().includes(busca) ||
+        p.cidade.toLowerCase().includes(busca) ||
+        (p.estado||'').toLowerCase().includes(busca) ||
+        (p.pais||'').toLowerCase().includes(busca);
+      return matchFiltro && matchBusca;
+    });
+  }
+
+  // ══ RENDERIZAR ══
+  function renderizar() {
+    const profs = profsFiltrados();
+    marcadores.forEach(m => m.remove());
+    marcadores = [];
+
+    profs.forEach((p, i) => {
+      const m = L.marker([p.lat, p.lng], { icon: criarIcone(p.caps) })
+        .addTo(mapa).bindPopup(criarPopup(p), { maxWidth: 240 });
+      m.on('click', () => ativarCard(i));
+      marcadores.push(m);
+    });
+
+    const listaEl = document.getElementById('lista-profissionais');
+    if (profs.length === 0) {
+      listaEl.innerHTML = `<div class="sem-resultados-lista">Nenhum profissional encontrado.</div>`;
+    } else {
+      listaEl.innerHTML = profs.map((p, i) => {
+        const iniciais = p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+        const tagsHtml = p.caps.map(c =>
+          `<span class="prof-tag ${c}">${c === 'vce' ? 'VCE' : 'Parto Pélvico'}</span>`
+        ).join('');
+        return `<div class="prof-card" id="card-${i}" onclick="ativarCard(${i})">
+          <div class="prof-avatar">${iniciais}</div>
+          <div class="prof-info">
+            <div class="prof-nome">${p.nome}</div>
+            <div class="prof-cidade">
+              <svg width="10" height="10" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${p.cidade}${p.estado ? ', ' + p.estado : ''}${p.pais !== 'Brasil' ? ' · ' + p.pais : ''}
+            </div>
+            <div class="prof-tags">${tagsHtml}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    document.getElementById('lista-count').textContent =
+      `${profs.length} profissional${profs.length !== 1 ? 'is' : ''} encontrado${profs.length !== 1 ? 's' : ''}`;
+    cardAtivo = null;
+  }
+
+  // ══ STATS ══
+  function atualizarStats() {
+    document.getElementById('total-count').textContent  = profissionais.length;
+    document.getElementById('cidades-count').textContent = new Set(profissionais.map(p => p.cidade)).size;
+    document.getElementById('paises-count').textContent  = new Set(profissionais.map(p => p.pais)).size;
+  }
+
+  // ══ ATIVAR CARD ══
+  function ativarCard(i) {
+    if (cardAtivo !== null) {
+      const el = document.getElementById(`card-${cardAtivo}`);
+      if (el) el.classList.remove('ativo');
+    }
+    cardAtivo = i;
+    const el = document.getElementById(`card-${i}`);
+    if (el) { el.classList.add('ativo'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    const profs = profsFiltrados();
+    mapa.setView([profs[i].lat, profs[i].lng], 10, { animate: true });
+    marcadores[i].openPopup();
+  }
+
+  // ══ FILTROS ══
+  document.querySelectorAll('.filtro-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filtro-pill').forEach(b => b.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      filtroAtivo = btn.dataset.filtro;
+      renderizar();
+    });
+  });
+
+  document.getElementById('busca').addEventListener('input', e => {
+    buscaAtiva = e.target.value;
+    renderizar();
+  });
+
+  // ══ FORMULÁRIO ══
+  function enviarCadastro(e) {
+    e.preventDefault();
+    document.getElementById('form-cadastro').style.display = 'none';
+    document.getElementById('form-sucesso').style.display = 'block';
+  }
+
+  // ══ INIT ══
+  carregarPlanilha();
+</script>
+</body>
+</html>
