@@ -262,8 +262,8 @@
 
   <header class="topo">
     <h1>Pelve obstétrica <em>paramétrica</em></h1>
-    <span class="selo">Serenidade Lab · peça única · mm</span>
-    <p>Modelo esquemático de peça única para impressão 3D: câmara que aloja o bebê, canal com curva de Carus, espinhas isquiáticas e vulva em relevo externo. Sem ímã, sem elástico, sem tecido — a geometria inteira sai de um arquivo só.</p>
+    <span class="selo">Serenidade Lab · concha + berço · mm</span>
+    <p>Concha aberta em cima, para alcançar o bebê com a mão: câmara que o aloja, canal seguindo a curva de Carus, espinhas isquiáticas e vulva em relevo externo. Assenta num berço que apoia na mesa só por gravidade — sem ímã, sem elástico, sem tecido.</p>
   </header>
 
   <div class="corpo">
@@ -272,6 +272,7 @@
       <div class="legenda">
         <span><i style="background:#E3D9C8"></i> pelve (peça impressa)</span>
         <span><i style="background:#8E4F6E"></i> bebê (peça separada)</span>
+        <span><i style="background:#B9AEC6"></i> berço (peça de apoio)</span>
         <span id="legEixo" hidden><i style="background:#F5630A"></i> eixo do canal</span>
       </div>
       <p class="dica">arraste para girar · rolagem para aproximar · 2 dedos para deslocar</p>
@@ -315,6 +316,34 @@
         <div class="campo">
           <div class="rot"><label for="cRelevo">Relevo da vulva (externo)</label><output id="oRelevo">10 mm</output></div>
           <input type="range" id="cRelevo" min="0" max="18" step="0.5" value="10">
+        </div>
+      </section>
+
+      <section class="bloco">
+        <h2>Abertura e base</h2>
+
+        <div class="campo">
+          <div class="rot"><label for="cAbertura">Abertura da concha</label><output id="oAbertura">150°</output></div>
+          <input type="range" id="cAbertura" min="0" max="170" step="5" value="150">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cAlturaAb">Até onde a abertura desce</label><output id="oAlturaAb">56%</output></div>
+          <input type="range" id="cAlturaAb" min="15" max="80" step="1" value="56">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cJanelaBerco">Janela frontal do berço</label><output id="oJanelaBerco">120°</output></div>
+          <input type="range" id="cJanelaBerco" min="0" max="150" step="5" value="120">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cFolgaBase">Folga entre casca e berço</label><output id="oFolgaBase">1.5 mm</output></div>
+          <input type="range" id="cFolgaBase" min="0.5" max="3" step="0.1" value="1.5">
+        </div>
+
+        <div class="chaves">
+          <label class="chave"><input type="checkbox" id="cMostraBase" checked> mostrar berço</label>
         </div>
       </section>
 
@@ -379,6 +408,10 @@
             <span class="val" id="mVol">—</span><span class="pastilha" id="pVol">—</span>
           </div>
           <div class="medida">
+            <span class="nome">Berço: pé Ø · material</span>
+            <span class="val" id="mBerco">—</span><span></span>
+          </div>
+          <div class="medida">
             <span class="nome">Caixa de impressão (L×A×P)</span>
             <span class="val" id="mCaixa">—</span><span class="pastilha" id="pCaixa">—</span>
           </div>
@@ -391,8 +424,10 @@
         <div class="acoes">
           <button type="button" class="btn" id="bPelve">Baixar pelve <small id="sPelve">STL</small></button>
           <button type="button" class="btn sec" id="bBebe">Baixar bebê <small id="sBebe">STL</small></button>
+          <button type="button" class="btn sec" id="bBase">Baixar berço <small id="sBase">STL</small></button>
         </div>
-        <p class="nota" style="margin-top:11px"><strong>Pelve:</strong> casca fechada e manifold gerada como sólido único — sai direto para o fatiador. <strong>Bebê:</strong> sólidos sobrepostos (cabeça, tronco, membros); a maioria dos fatiadores resolve com união automática, mas passe por um <code>union</code> no Blender se der aviso.</p>
+        <p class="nota" style="margin-top:11px"><strong>Pelve e berço:</strong> cada um é uma casca fechada e manifold, sólido único — saem direto para o fatiador. <strong>Bebê:</strong> sólidos sobrepostos (cabeça, tronco, membros); a maioria dos fatiadores resolve com união automática, mas passe por um <code>union</code> no Blender se der aviso.</p>
+        <p class="nota">O berço imprime de boca para baixo, sem suporte, e a casca só encaixa nele por gravidade — nada de ímã ou parafuso. Deixei a base separada de propósito: fundida na casca ela exigiria união booleana, suportes internos e muito mais material.</p>
         <p class="nota">Sem suportes se imprimir com a abertura do fundo voltada para a mesa. Parede de 5 mm em PLA já fica rígida; se a peça anterior quebrou no uso, suba para 7–8 mm — mas veja o material acima antes: em escala 1:1 a peça come mais de um rolo. Em 65% ela cabe numa mesa de 220 mm e fica perto de meio rolo.</p>
       </section>
 
@@ -418,13 +453,16 @@
   /* ═══ Parâmetros (todas as medidas em milímetros) ═══ */
   const P = {
     escala: 1, parede: 5, canal: 114, vulva: 108, espinhas: 6, relevo: 10, abas: 30,
+    abertura: 150, alturaAbertura: 0.56, folgaBase: 1.5, janelaBerco: 120,
     bebe: 0.86, descida: 0.62, pos: 'pelvico',
-    mostraBebe: true, corte: false, transp: false, eixo: false, girar: false
+    mostraBebe: true, mostraBase: true, corte: false, transp: false, eixo: false, girar: false
   };
 
   const CANAL_BASE = 114;          // diâmetro do estreito médio na tabela de perfil
   const RES_TELA   = [104, 72];    // [estações, ângulos] na pré-visualização
   const RES_STL    = [120, 80];    // resolução usada só na exportação
+  const U_BERCO    = [0.62, 0.90]; // trecho da casca que o berço abraça
+  const LABIO      = 6;            // degrau interno onde a casca assenta (mm)
 
   /* ═══ Utilidades ═══ */
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -548,11 +586,19 @@
       }
     }
 
+    // Janela posterior: a casca é aberta em cima, como uma concha
+    const jc = Math.round(nA * 0.75);                       // 270° = posterior
+    const jw = Math.min(Math.round(nA * P.abertura / 720), Math.round(nA * 0.24));
+    const jA = jc - jw, jB = jc + jw;
+    const iJan = jw > 0 ? Math.max(1, Math.round(nU * P.alturaAbertura)) : 0;
+    const naJanela = (i, j) => i < iJan && j >= jA && j < jB;
+
     const idx = [];
     const o = (i, j) => i * nA + j;
     const n = (i, j) => nV + i * nA + j;
     for (let i = 0; i < nU; i++) {
       for (let j = 0; j < nA; j++) {
+        if (naJanela(i, j)) continue;
         const j1 = (j + 1) % nA;
         idx.push(o(i, j), o(i, j1), o(i + 1, j));          // externa: normal para fora
         idx.push(o(i, j1), o(i + 1, j1), o(i + 1, j));
@@ -561,9 +607,22 @@
       }
     }
     for (let j = 0; j < nA; j++) {                          // borda do fundo
+      if (iJan > 0 && j >= jA && j < jB) continue;
       const j1 = (j + 1) % nA;
       idx.push(o(0, j), n(0, j), o(0, j1));
       idx.push(n(0, j), n(0, j1), o(0, j1));
+    }
+    if (iJan > 0 && jw > 0) {                               // espessura exposta da janela
+      for (let i = 0; i < iJan; i++) {
+        idx.push(o(i, jA), n(i, jA), o(i + 1, jA));        // normal para dentro da janela
+        idx.push(o(i + 1, jA), n(i, jA), n(i + 1, jA));
+        idx.push(o(i, jB), o(i + 1, jB), n(i, jB));
+        idx.push(o(i + 1, jB), n(i + 1, jB), n(i, jB));
+      }
+      for (let j = jA; j < jB; j++) {
+        idx.push(o(iJan, j), n(iJan, j), o(iJan, j + 1));
+        idx.push(n(iJan, j), n(iJan, j + 1), o(iJan, j + 1));
+      }
     }
     for (let j = 0; j < nA; j++) {                          // borda da vulva
       const j1 = (j + 1) % nA;
@@ -571,7 +630,133 @@
       idx.push(n(nU, j), o(nU, j1), n(nU, j1));
     }
 
-    let vol = 0;                       // volume assinado (mm3) pela soma dos tetraedros
+    let vol = 0, mx = 0, my = 0, mz = 0;   // volume e centro de massa pela soma dos tetraedros
+    for (let k = 0; k < idx.length; k += 3) {
+      const a3 = idx[k] * 3, b3 = idx[k + 1] * 3, c3 = idx[k + 2] * 3;
+      const ax = pos[a3], ay = pos[a3 + 1], az = pos[a3 + 2];
+      const bx = pos[b3], by = pos[b3 + 1], bz = pos[b3 + 2];
+      const cx = pos[c3], cy = pos[c3 + 1], cz = pos[c3 + 2];
+      const d = (ax * (by * cz - cy * bz) - ay * (bx * cz - cx * bz) + az * (bx * cy - cx * by)) / 6;
+      vol += d;
+      mx += d * (ax + bx + cx) / 4; my += d * (ay + by + cy) / 4; mz += d * (az + bz + cz) / 4;
+    }
+
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
+    g.computeVertexNormals();
+    g.computeBoundingBox();
+    return { geom: g, canalMin: canalMin, vulvaMin: vulvaMin, tris: idx.length / 3,
+             vol: Math.abs(vol), cm: new THREE.Vector3(mx / vol, my / vol, mz / vol) };
+  }
+
+  /* ═══ Berço: peça de apoio que abraça a casca e assenta na mesa ═══ */
+  function raioExterno(u, th) {
+    const pr = perfil(u);
+    const ext = P.parede + relevo(u, th) + abas(u, th);
+    return [pr[0] + ext, pr[1] + ext];
+  }
+
+  function construirBerco(nU2, nA, zApoio) {
+    const nV = (nU2 + 1) * nA;
+    const pos = new Float32Array(nV * 2 * 3);
+    const X = new THREE.Vector3(1, 0, 0);
+    const W = new THREE.Vector3(), Wb = new THREE.Vector3(), Cc = new THREE.Vector3();
+    const uT = U_BERCO[0], uB = U_BERCO[1], tSoc = 0.5;
+    const Cb = eixo(uB);
+    Wb.crossVectors(tangente(uB), X).normalize();
+    const yPe = eixo(1).y - 30;                     // pé abaixo do ponto mais baixo da vulva
+
+    let rMax = 0;                                   // boca do berço, para dimensionar o pé
+    for (let j = 0; j < nA; j++) {
+      const re = raioExterno(uT, (j / nA) * Math.PI * 2);
+      rMax = Math.max(rMax, re[0], re[1]);
+    }
+    const rPe = 0.95 * (rMax + P.folgaBase);
+
+    for (let k = 0; k <= nU2; k++) {
+      const t = k / nU2;
+      let u = uB, s = 0, g = 0;
+      if (t <= tSoc) {
+        u = lerp(uT, uB, t / tSoc);
+        Cc.copy(eixo(u));
+        W.crossVectors(tangente(u), X).normalize();
+      } else {
+        s = (t - tSoc) / (1 - tSoc);
+        g = sm(s, 0.16, 1.0);
+        Cc.set(0, lerp(Cb.y, yPe, g), lerp(Cb.z, zApoio, g));
+        W.set(lerp(Wb.x, 0, g), lerp(Wb.y, 0, g), lerp(Wb.z, 1, g)).normalize();
+      }
+      for (let j = 0; j < nA; j++) {
+        const th = (j / nA) * Math.PI * 2;
+        const ct = Math.cos(th), st = Math.sin(th);
+        let ai, bi;
+        if (t <= tSoc) {
+          const re = raioExterno(u, th);
+          ai = re[0] + P.folgaBase; bi = re[1] + P.folgaBase;
+        } else {
+          const re = raioExterno(uB, th);
+          const deg = LABIO * sm(s, 0, 0.14);        // degrau: onde a casca para
+          ai = lerp(re[0] + P.folgaBase - deg, rPe, g);
+          bi = lerp(re[1] + P.folgaBase - deg, rPe, g);
+        }
+        const ao = ai + P.parede, bo = bi + P.parede;
+        const io = (k * nA + j) * 3, ii = (nV + k * nA + j) * 3;
+        pos[io]     = Cc.x + ao * ct * X.x + bo * st * W.x;
+        pos[io + 1] = Cc.y + ao * ct * X.y + bo * st * W.y;
+        pos[io + 2] = Cc.z + ao * ct * X.z + bo * st * W.z;
+        pos[ii]     = Cc.x + ai * ct * X.x + bi * st * W.x;
+        pos[ii + 1] = Cc.y + ai * ct * X.y + bi * st * W.y;
+        pos[ii + 2] = Cc.z + ai * ct * X.z + bi * st * W.z;
+      }
+    }
+
+    // Janela anterior: deixa a vulva à vista e à mão dentro do berço
+    const jcB = Math.round(nA * 0.25);                       // 90° = anterior
+    const jwB = Math.min(Math.round(nA * P.janelaBerco / 720), Math.round(nA * 0.22));
+    const jAB = jcB - jwB, jBB = jcB + jwB;
+    const k0 = Math.round(nU2 * 0.60), k1 = Math.round(nU2 * 0.94);
+    const naJanela = (k, j) => jwB > 0 && k >= k0 && k < k1 && j >= jAB && j < jBB;
+
+    const idx = [];
+    const o = (i, j) => i * nA + j;
+    const n = (i, j) => nV + i * nA + j;
+    for (let i = 0; i < nU2; i++) {
+      for (let j = 0; j < nA; j++) {
+        if (naJanela(i, j)) continue;
+        const j1 = (j + 1) % nA;
+        idx.push(o(i, j), o(i, j1), o(i + 1, j));
+        idx.push(o(i, j1), o(i + 1, j1), o(i + 1, j));
+        idx.push(n(i, j), n(i + 1, j), n(i, j1));
+        idx.push(n(i, j1), n(i + 1, j), n(i + 1, j1));
+      }
+    }
+    if (jwB > 0) {                                           // espessura exposta da janela
+      for (let k = k0; k < k1; k++) {
+        idx.push(o(k, jAB), n(k, jAB), o(k + 1, jAB));
+        idx.push(o(k + 1, jAB), n(k, jAB), n(k + 1, jAB));
+        idx.push(o(k, jBB), o(k + 1, jBB), n(k, jBB));
+        idx.push(o(k + 1, jBB), n(k + 1, jBB), n(k, jBB));
+      }
+      for (let j = jAB; j < jBB; j++) {
+        idx.push(o(k0, j), o(k0, j + 1), n(k0, j));          // aro de cima
+        idx.push(n(k0, j), o(k0, j + 1), n(k0, j + 1));
+        idx.push(o(k1, j), n(k1, j), o(k1, j + 1));          // aro de baixo
+        idx.push(n(k1, j), n(k1, j + 1), o(k1, j + 1));
+      }
+    }
+    for (let j = 0; j < nA; j++) {                   // boca
+      const j1 = (j + 1) % nA;
+      idx.push(o(0, j), n(0, j), o(0, j1));
+      idx.push(n(0, j), n(0, j1), o(0, j1));
+    }
+    for (let j = 0; j < nA; j++) {                   // pé, plano
+      const j1 = (j + 1) % nA;
+      idx.push(o(nU2, j), o(nU2, j1), n(nU2, j));
+      idx.push(n(nU2, j), o(nU2, j1), n(nU2, j1));
+    }
+
+    let vol = 0;
     for (let k = 0; k < idx.length; k += 3) {
       const a3 = idx[k] * 3, b3 = idx[k + 1] * 3, c3 = idx[k + 2] * 3;
       const ax = pos[a3], ay = pos[a3 + 1], az = pos[a3 + 2];
@@ -580,12 +765,12 @@
       vol += (ax * (by * cz - cy * bz) - ay * (bx * cz - cx * bz) + az * (bx * cy - cx * by)) / 6;
     }
 
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
-    g.computeVertexNormals();
-    g.computeBoundingBox();
-    return { geom: g, canalMin: canalMin, vulvaMin: vulvaMin, tris: idx.length / 3, vol: Math.abs(vol) };
+    const g2 = new THREE.BufferGeometry();
+    g2.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g2.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
+    g2.computeVertexNormals();
+    g2.computeBoundingBox();
+    return { geom: g2, tris: idx.length / 3, vol: Math.abs(vol), pe: 2 * rPe, yPe: yPe };
   }
 
   /* ═══ Bebê esquemático: sólidos de revolução ═══ */
@@ -674,8 +859,14 @@
     color: 0x8E4F6E, roughness: 0.58, metalness: 0.03, side: THREE.DoubleSide
   });
 
+  const matBerco = new THREE.MeshStandardMaterial({
+    color: 0xB9AEC6, roughness: 0.9, metalness: 0.02, side: THREE.DoubleSide
+  });
+
   const meshPelve = new THREE.Mesh(new THREE.BufferGeometry(), matPelve);
   cena.add(meshPelve);
+  const meshBerco = new THREE.Mesh(new THREE.BufferGeometry(), matBerco);
+  cena.add(meshBerco);
 
   const raizBebe = new THREE.Group();      // ancorado num ponto do eixo do canal
   const poseBebe = new THREE.Group();      // apresentação (pélvica / cefálica / transversa)
@@ -776,8 +967,19 @@
     medidas.vulvaMin = r.vulvaMin;
     medidas.trisPelve = r.tris;
     medidas.vol = r.vol;
+    medidas.cm = r.cm;
     const bb = r.geom.boundingBox;
     medidas.caixa = new THREE.Vector3().subVectors(bb.max, bb.min);
+  }
+
+  function reconstruirBerco() {
+    const r = construirBerco(56, RES_TELA[1], medidas.cm.z);
+    meshBerco.geometry.dispose();
+    meshBerco.geometry = r.geom;
+    meshBerco.visible = P.mostraBase;
+    medidas.volBerco = r.vol;
+    medidas.pe = r.pe;
+    medidas.yPe = r.yPe;
   }
 
   function reconstruirBebe() {
@@ -845,6 +1047,9 @@
     else if (g <= 1000) pastilha($('pVol'), 'p-alerta', 'quase um rolo');
     else pastilha($('pVol'), 'p-alerta', Math.ceil(g / 1000) + ' rolos');
 
+    const cb3 = medidas.volBerco * s * s * s / 1000;
+    $('mBerco').textContent = (medidas.pe * s).toFixed(0) + ' mm · ' + cb3.toFixed(0) + ' cm³';
+
     const c = medidas.caixa;
     const L = c.x * s, A = c.y * s, Pf = c.z * s;
     $('mCaixa').textContent = L.toFixed(0) + '×' + A.toFixed(0) + '×' + Pf.toFixed(0);
@@ -856,10 +1061,12 @@
     const trisStl = RES_STL[0] * RES_STL[1] * 4 + RES_STL[1] * 4;
     $('sPelve').textContent = 'STL · ' + (trisStl / 1000).toFixed(0) + 'k faces';
     $('sBebe').textContent = 'STL · ' + (medidas.trisBebe / 1000).toFixed(0) + 'k faces';
+    $('sBase').textContent = 'STL · ' + (RES_STL[1] * 4.5 / 1000).toFixed(0) + 'k faces';
   }
 
   function atualizarTudo() {
     reconstruirPelve();
+    reconstruirBerco();
     reconstruirBebe();
     atualizarMedidas();
   }
@@ -953,6 +1160,8 @@
     exportar($('bPelve'), 'pelve-obstetrica', () => construirPelve(RES_STL[0], RES_STL[1]).geom));
   $('bBebe').addEventListener('click', () =>
     exportar($('bBebe'), 'bebe', () => construirBebe(medidas.bip).geom));
+  $('bBase').addEventListener('click', () =>
+    exportar($('bBase'), 'berco', () => construirBerco(90, RES_STL[1], medidas.cm.z).geom));
 
   /* ═══ Controles ═══ */
   let pendente = false;
@@ -985,6 +1194,10 @@
   faixa('cAbas',     'oAbas',     'abas',     1,    emMm,          true);
   faixa('cEspinhas', 'oEspinhas', 'espinhas', 1,    emMm,          true);
   faixa('cRelevo',   'oRelevo',   'relevo',   1,    emMm,          true);
+  faixa('cAbertura', 'oAbertura', 'abertura', 1,    v => v + '°', true);
+  faixa('cAlturaAb', 'oAlturaAb', 'alturaAbertura', 0.01, v => v + '%', true);
+  faixa('cJanelaBerco','oJanelaBerco','janelaBerco',1, v => v + '°', true);
+  faixa('cFolgaBase','oFolgaBase','folgaBase',1,    emMm,          true);
   faixa('cBebe',     'oBebe',     'bebe',     0.01, v => v + '%',  true);
   faixa('cDescida',  'oDescida',  'descida',  0.01, v => v + '%',  false);
 
@@ -1002,11 +1215,13 @@
     el.addEventListener('change', () => fn(el.checked));
   }
   chave('cMostraBebe', v => { P.mostraBebe = v; raizBebe.visible = v; });
+  chave('cMostraBase', v => { P.mostraBase = v; meshBerco.visible = v; });
   chave('cCorte', v => {
     P.corte = v;
     const planos = v ? [planoCorte] : [];
     matPelve.clippingPlanes = planos; matPelve.needsUpdate = true;
     matBebe.clippingPlanes = planos; matBebe.needsUpdate = true;
+    matBerco.clippingPlanes = planos; matBerco.needsUpdate = true;
   });
   chave('cTransp', v => {
     P.transp = v;
@@ -1020,10 +1235,10 @@
 
   /* ═══ Início ═══ */
   atualizarTudo();
-  const bb = meshPelve.geometry.boundingBox;
+  const bb = meshPelve.geometry.boundingBox.clone().union(meshBerco.geometry.boundingBox);
   alvo.set(0, (bb.min.y + bb.max.y) / 2, 0);
   dist = Math.max(bb.max.y - bb.min.y, bb.max.x - bb.min.x) * 0.62 /
-         Math.tan(camera.fov * Math.PI / 360) * 1.05;
+         Math.tan(camera.fov * Math.PI / 360) * 1.08;
   posicionarCamera();
   redimensionar();
   animar();
