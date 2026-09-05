@@ -375,6 +375,10 @@
             <span class="val" id="mFolgaV">—</span><span class="pastilha" id="pFolgaV">—</span>
           </div>
           <div class="medida">
+            <span class="nome">Material da pelve (parede maciça)</span>
+            <span class="val" id="mVol">—</span><span class="pastilha" id="pVol">—</span>
+          </div>
+          <div class="medida">
             <span class="nome">Caixa de impressão (L×A×P)</span>
             <span class="val" id="mCaixa">—</span><span class="pastilha" id="pCaixa">—</span>
           </div>
@@ -389,7 +393,7 @@
           <button type="button" class="btn sec" id="bBebe">Baixar bebê <small id="sBebe">STL</small></button>
         </div>
         <p class="nota" style="margin-top:11px"><strong>Pelve:</strong> casca fechada e manifold gerada como sólido único — sai direto para o fatiador. <strong>Bebê:</strong> sólidos sobrepostos (cabeça, tronco, membros); a maioria dos fatiadores resolve com união automática, mas passe por um <code>union</code> no Blender se der aviso.</p>
-        <p class="nota">Sem suportes se imprimir com a abertura do fundo voltada para a mesa. Parede de 5 mm em PLA já fica rígida; se a peça anterior quebrou no uso, suba para 7–8 mm.</p>
+        <p class="nota">Sem suportes se imprimir com a abertura do fundo voltada para a mesa. Parede de 5 mm em PLA já fica rígida; se a peça anterior quebrou no uso, suba para 7–8 mm — mas veja o material acima antes: em escala 1:1 a peça come mais de um rolo. Em 65% ela cabe numa mesa de 220 mm e fica perto de meio rolo.</p>
       </section>
 
       <section class="bloco">
@@ -567,12 +571,21 @@
       idx.push(n(nU, j), o(nU, j1), n(nU, j1));
     }
 
+    let vol = 0;                       // volume assinado (mm3) pela soma dos tetraedros
+    for (let k = 0; k < idx.length; k += 3) {
+      const a3 = idx[k] * 3, b3 = idx[k + 1] * 3, c3 = idx[k + 2] * 3;
+      const ax = pos[a3], ay = pos[a3 + 1], az = pos[a3 + 2];
+      const bx = pos[b3], by = pos[b3 + 1], bz = pos[b3 + 2];
+      const cx = pos[c3], cy = pos[c3 + 1], cz = pos[c3 + 2];
+      vol += (ax * (by * cz - cy * bz) - ay * (bx * cz - cx * bz) + az * (bx * cy - cx * by)) / 6;
+    }
+
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
     g.computeVertexNormals();
     g.computeBoundingBox();
-    return { geom: g, canalMin: canalMin, vulvaMin: vulvaMin, tris: idx.length / 3 };
+    return { geom: g, canalMin: canalMin, vulvaMin: vulvaMin, tris: idx.length / 3, vol: Math.abs(vol) };
   }
 
   /* ═══ Bebê esquemático: sólidos de revolução ═══ */
@@ -762,6 +775,7 @@
     medidas.canalMin = r.canalMin;
     medidas.vulvaMin = r.vulvaMin;
     medidas.trisPelve = r.tris;
+    medidas.vol = r.vol;
     const bb = r.geom.boundingBox;
     medidas.caixa = new THREE.Vector3().subVectors(bb.max, bb.min);
   }
@@ -823,6 +837,13 @@
     };
     nota(folga, $('pFolga'));
     nota(folgaV, $('pFolgaV'));
+
+    const cm3 = medidas.vol * s * s * s / 1000;
+    const g = cm3 * 1.24;                       // PLA ≈ 1,24 g/cm3
+    $('mVol').textContent = cm3.toFixed(0) + ' cm³ · ' + (g / 1000).toFixed(2).replace('.', ',') + ' kg';
+    if (g <= 700) pastilha($('pVol'), 'p-ok', 'um rolo');
+    else if (g <= 1000) pastilha($('pVol'), 'p-alerta', 'quase um rolo');
+    else pastilha($('pVol'), 'p-alerta', Math.ceil(g / 1000) + ' rolos');
 
     const c = medidas.caixa;
     const L = c.x * s, A = c.y * s, Pf = c.z * s;
