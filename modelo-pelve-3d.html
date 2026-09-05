@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pelve Obstétrica Paramétrica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  /* ── Tokens: paleta Serenidade Lab, neutros com viés roxo ── */
+  :root {
+    --creme:      #FDF8F2;
+    --painel:     #FFFFFF;
+    --painel-2:   #F7F1EA;
+    --tinta:      #2D0A4E;
+    --tinta-2:    #5B2D8E;
+    --cinza:      #6E5F7D;
+    --linha:      #E4DAEC;
+    --laranja:    #F5630A;
+    --ok:         #1F7A5C;
+    --alerta:     #A96500;
+    --erro:       #B3261E;
+    --cena-1:     #EFE7F2;
+    --cena-2:     #DCD0E4;
+    --sombra:     0 1px 2px rgba(45,10,78,.06), 0 8px 24px rgba(45,10,78,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --creme:    #140A21;
+      --painel:   #1E1130;
+      --painel-2: #271740;
+      --tinta:    #F1E8F8;
+      --tinta-2:  #C4A8E8;
+      --cinza:    #A292B4;
+      --linha:    #362449;
+      --laranja:  #FF8C42;
+      --ok:       #56C79B;
+      --alerta:   #E0A143;
+      --erro:     #FF8A80;
+      --cena-1:   #211434;
+      --cena-2:   #150C22;
+      --sombra:   0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --creme:    #140A21;
+    --painel:   #1E1130;
+    --painel-2: #271740;
+    --tinta:    #F1E8F8;
+    --tinta-2:  #C4A8E8;
+    --cinza:    #A292B4;
+    --linha:    #362449;
+    --laranja:  #FF8C42;
+    --ok:       #56C79B;
+    --alerta:   #E0A143;
+    --erro:     #FF8A80;
+    --cena-1:   #211434;
+    --cena-2:   #150C22;
+    --sombra:   0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background: var(--creme);
+    color: var(--tinta);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible { outline: 2px solid var(--laranja); outline-offset: 2px; border-radius: 3px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100dvh;
+    min-height: 560px;
+  }
+
+  /* ── Cabeçalho ── */
+  .topo {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 18px;
+    padding: 14px clamp(14px, 3vw, 28px) 12px;
+    border-bottom: 1px solid var(--linha);
+    background: var(--painel);
+  }
+  .topo h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+    font-weight: 700; line-height: 1.1; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .topo h1 em { color: var(--laranja); font-style: italic; }
+  .topo p { font-size: .82rem; color: var(--cinza); max-width: 62ch; line-height: 1.5; }
+  .selo {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: .6rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--tinta-2); border: 1px solid var(--linha);
+    padding: 3px 9px; border-radius: 100px; white-space: nowrap;
+  }
+
+  /* ── Corpo: cena + painel ── */
+  .corpo { display: grid; grid-template-columns: 1fr 358px; min-height: 0; }
+
+  .cena {
+    position: relative; min-height: 0;
+    background:
+      radial-gradient(120% 90% at 50% 8%, var(--cena-1) 0%, var(--cena-2) 100%);
+    overflow: hidden;
+  }
+  .cena canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+  .dica {
+    position: absolute; left: 14px; bottom: 12px;
+    font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .07em;
+    color: var(--cinza); pointer-events: none; text-transform: uppercase;
+  }
+  .legenda {
+    position: absolute; right: 14px; top: 12px;
+    display: flex; flex-direction: column; gap: 5px; align-items: flex-end;
+    pointer-events: none;
+  }
+  .legenda span {
+    font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .05em;
+    color: var(--cinza); display: flex; align-items: center; gap: 6px;
+  }
+  .legenda i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+  /* ── Painel de controles ── */
+  .painel {
+    background: var(--painel); border-left: 1px solid var(--linha);
+    overflow-y: auto; min-height: 0;
+    display: flex; flex-direction: column;
+  }
+  .bloco { padding: 16px 18px; border-bottom: 1px solid var(--linha); }
+  .bloco > h2 {
+    font-family: 'DM Mono', monospace; font-size: .62rem; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--tinta-2);
+    margin-bottom: 12px;
+  }
+
+  .campo { display: grid; gap: 5px; margin-bottom: 13px; }
+  .campo:last-child { margin-bottom: 0; }
+  .campo > .rot { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .campo label { font-size: .78rem; color: var(--tinta); line-height: 1.3; }
+  .campo output {
+    font-family: 'DM Mono', monospace; font-size: .74rem; font-variant-numeric: tabular-nums;
+    color: var(--laranja); white-space: nowrap;
+  }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 18px;
+    background: transparent; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 3px; border-radius: 2px; background: var(--linha);
+  }
+  input[type="range"]::-moz-range-track { height: 3px; border-radius: 2px; background: var(--linha); }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 14px; height: 14px; margin-top: -5.5px;
+    border-radius: 50%; background: var(--laranja); border: 2px solid var(--painel);
+    box-shadow: 0 0 0 1px var(--laranja);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 50%; background: var(--laranja);
+    border: 2px solid var(--painel); box-shadow: 0 0 0 1px var(--laranja);
+  }
+
+  .segmentos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .segmentos button {
+    font-family: 'DM Sans', sans-serif; font-size: .72rem; padding: 7px 4px;
+    border: 1px solid var(--linha); background: transparent; color: var(--cinza);
+    border-radius: 5px; cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  }
+  .segmentos button:hover { border-color: var(--tinta-2); color: var(--tinta); }
+  .segmentos button[aria-pressed="true"] {
+    background: var(--tinta-2); border-color: var(--tinta-2); color: #fff; font-weight: 500;
+  }
+
+  .chaves { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chave {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: .74rem; color: var(--cinza); border: 1px solid var(--linha);
+    padding: 6px 10px; border-radius: 100px; user-select: none;
+    transition: border-color .15s, color .15s;
+  }
+  .chave:hover { border-color: var(--tinta-2); color: var(--tinta); }
+  .chave input { accent-color: var(--laranja); margin: 0; }
+  .chave:has(input:checked) { border-color: var(--tinta-2); color: var(--tinta); }
+
+  /* ── Verificação de encaixe ── */
+  .medidas { display: grid; gap: 0; }
+  .medida {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: baseline; gap: 10px;
+    padding: 7px 0; border-bottom: 1px dotted var(--linha); font-size: .76rem;
+  }
+  .medida:last-child { border-bottom: 0; }
+  .medida .nome { color: var(--cinza); }
+  .medida .val {
+    font-family: 'DM Mono', monospace; font-variant-numeric: tabular-nums;
+    color: var(--tinta); font-size: .78rem;
+  }
+  .pastilha {
+    font-family: 'DM Mono', monospace; font-size: .58rem; letter-spacing: .08em;
+    text-transform: uppercase; padding: 2px 7px; border-radius: 100px;
+    border: 1px solid currentColor;
+  }
+  .p-ok    { color: var(--ok); }
+  .p-alerta{ color: var(--alerta); }
+  .p-erro  { color: var(--erro); }
+
+  /* ── Exportar ── */
+  .acoes { display: grid; gap: 7px; }
+  .btn {
+    font-family: 'DM Sans', sans-serif; font-size: .82rem; font-weight: 500;
+    padding: 10px 14px; border-radius: 6px; cursor: pointer; text-align: left;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    border: 1px solid var(--tinta-2); background: var(--tinta-2); color: #fff;
+    transition: filter .15s;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn.sec { background: transparent; color: var(--tinta); }
+  .btn.sec:hover { background: var(--painel-2); filter: none; }
+  .btn small { font-family: 'DM Mono', monospace; font-size: .62rem; opacity: .8; font-weight: 400; }
+  .btn[disabled] { opacity: .5; cursor: progress; }
+
+  .nota { font-size: .72rem; color: var(--cinza); line-height: 1.55; }
+  .nota + .nota { margin-top: 8px; }
+  .nota strong { color: var(--tinta); font-weight: 500; }
+  .nota code {
+    font-family: 'DM Mono', monospace; font-size: .68rem;
+    background: var(--painel-2); padding: 1px 4px; border-radius: 3px;
+  }
+  .aviso {
+    border-left: 2px solid var(--alerta); padding: 8px 0 8px 11px;
+    font-size: .72rem; color: var(--cinza); line-height: 1.55;
+  }
+  .aviso b { color: var(--tinta); font-weight: 500; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    background: var(--tinta); color: var(--creme); padding: 10px 16px;
+    border-radius: 6px; font-size: .78rem; box-shadow: var(--sombra);
+    max-width: min(92vw, 460px); line-height: 1.45; z-index: 20;
+  }
+
+  @media (max-width: 980px) {
+    .app { height: auto; min-height: 0; }
+    .corpo { grid-template-columns: 1fr; }
+    .cena { height: 58vh; min-height: 340px; }
+    .painel { border-left: 0; border-top: 1px solid var(--linha); overflow-y: visible; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topo">
+    <h1>Pelve obstétrica <em>paramétrica</em></h1>
+    <span class="selo">Serenidade Lab · peça única · mm</span>
+    <p>Modelo esquemático de peça única para impressão 3D: câmara que aloja o bebê, canal com curva de Carus, espinhas isquiáticas e vulva em relevo externo. Sem ímã, sem elástico, sem tecido — a geometria inteira sai de um arquivo só.</p>
+  </header>
+
+  <div class="corpo">
+
+    <div class="cena" id="cena">
+      <div class="legenda">
+        <span><i style="background:#E3D9C8"></i> pelve (peça impressa)</span>
+        <span><i style="background:#8E4F6E"></i> bebê (peça separada)</span>
+        <span id="legEixo" hidden><i style="background:#F5630A"></i> eixo do canal</span>
+      </div>
+      <p class="dica">arraste para girar · rolagem para aproximar · 2 dedos para deslocar</p>
+    </div>
+
+    <aside class="painel">
+
+      <section class="bloco">
+        <h2>Cavidade e canal</h2>
+
+        <div class="campo">
+          <div class="rot"><label for="cEscala">Escala aplicada no STL</label><output id="oEscala">100%</output></div>
+          <input type="range" id="cEscala" min="30" max="100" step="5" value="100">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cParede">Espessura da parede</label><output id="oParede">5 mm</output></div>
+          <input type="range" id="cParede" min="3" max="10" step="0.5" value="5">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cCanal">Estreito médio (interespinhoso)</label><output id="oCanal">114 mm</output></div>
+          <input type="range" id="cCanal" min="90" max="140" step="1" value="114">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cVulva">Abertura vulvar</label><output id="oVulva">108 mm</output></div>
+          <input type="range" id="cVulva" min="70" max="140" step="1" value="108">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cAbas">Abas ilíacas (relevo externo)</label><output id="oAbas">30 mm</output></div>
+          <input type="range" id="cAbas" min="0" max="60" step="1" value="30">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cEspinhas">Saliência das espinhas isquiáticas</label><output id="oEspinhas">6 mm</output></div>
+          <input type="range" id="cEspinhas" min="0" max="14" step="0.5" value="6">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cRelevo">Relevo da vulva (externo)</label><output id="oRelevo">10 mm</output></div>
+          <input type="range" id="cRelevo" min="0" max="18" step="0.5" value="10">
+        </div>
+      </section>
+
+      <section class="bloco">
+        <h2>Bebê</h2>
+
+        <div class="campo">
+          <label id="rotPos">Apresentação</label>
+          <div class="segmentos" role="group" aria-labelledby="rotPos">
+            <button type="button" data-pos="pelvico" aria-pressed="true">Pélvica</button>
+            <button type="button" data-pos="cefalico" aria-pressed="false">Cefálica</button>
+            <button type="button" data-pos="transverso" aria-pressed="false">Transversa</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cBebe">Tamanho (biparietal ÷ canal)</label><output id="oBebe">86%</output></div>
+          <input type="range" id="cBebe" min="60" max="105" step="1" value="86">
+        </div>
+
+        <div class="campo">
+          <div class="rot"><label for="cDescida">Descida na curva de Carus</label><output id="oDescida">62%</output></div>
+          <input type="range" id="cDescida" min="18" max="99" step="1" value="62">
+        </div>
+
+        <div class="chaves">
+          <label class="chave"><input type="checkbox" id="cMostraBebe" checked> mostrar bebê</label>
+        </div>
+      </section>
+
+      <section class="bloco">
+        <h2>Vista</h2>
+        <div class="chaves">
+          <label class="chave"><input type="checkbox" id="cCorte"> corte sagital</label>
+          <label class="chave"><input type="checkbox" id="cTransp"> pelve translúcida</label>
+          <label class="chave"><input type="checkbox" id="cEixo"> eixo do canal</label>
+          <label class="chave"><input type="checkbox" id="cGirar"> girar</label>
+        </div>
+      </section>
+
+      <section class="bloco">
+        <h2>Verificação de encaixe</h2>
+        <div class="medidas">
+          <div class="medida">
+            <span class="nome">Menor diâmetro interno do canal</span>
+            <span class="val" id="mCanal">—</span><span></span>
+          </div>
+          <div class="medida">
+            <span class="nome">Diâmetro biparietal do bebê</span>
+            <span class="val" id="mBip">—</span><span></span>
+          </div>
+          <div class="medida">
+            <span class="nome">Folga no estreito médio</span>
+            <span class="val" id="mFolga">—</span><span class="pastilha" id="pFolga">—</span>
+          </div>
+          <div class="medida">
+            <span class="nome">Folga na abertura vulvar</span>
+            <span class="val" id="mFolgaV">—</span><span class="pastilha" id="pFolgaV">—</span>
+          </div>
+          <div class="medida">
+            <span class="nome">Caixa de impressão (L×A×P)</span>
+            <span class="val" id="mCaixa">—</span><span class="pastilha" id="pCaixa">—</span>
+          </div>
+        </div>
+        <p class="nota" style="margin-top:10px">A folga é a diferença entre o canal e a cabeça. Como a peça é rígida, a passagem só acontece com folga positiva — num modelo real o períneo cede, aqui não.</p>
+      </section>
+
+      <section class="bloco">
+        <h2>Exportar para impressão</h2>
+        <div class="acoes">
+          <button type="button" class="btn" id="bPelve">Baixar pelve <small id="sPelve">STL</small></button>
+          <button type="button" class="btn sec" id="bBebe">Baixar bebê <small id="sBebe">STL</small></button>
+        </div>
+        <p class="nota" style="margin-top:11px"><strong>Pelve:</strong> casca fechada e manifold gerada como sólido único — sai direto para o fatiador. <strong>Bebê:</strong> sólidos sobrepostos (cabeça, tronco, membros); a maioria dos fatiadores resolve com união automática, mas passe por um <code>union</code> no Blender se der aviso.</p>
+        <p class="nota">Sem suportes se imprimir com a abertura do fundo voltada para a mesa. Parede de 5 mm em PLA já fica rígida; se a peça anterior quebrou no uso, suba para 7–8 mm.</p>
+      </section>
+
+      <section class="bloco">
+        <p class="aviso"><b>Modelo esquemático, não validado clinicamente.</b> A geometria é gerada por fórmula a partir de diâmetros obstétricos de referência (estreito superior ≈ 130 × 110 mm, interespinhoso ≈ 105–115 mm) — são valores aproximados de literatura, não medidas de um scan. Antes de usar em curso, confira as medidas impressas com quem tem formação obstétrica e ajuste os parâmetros acima.</p>
+      </section>
+
+    </aside>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  if (!window.THREE) {
+    document.getElementById('cena').innerHTML =
+      '<p style="padding:24px;font-size:.85rem">Não consegui carregar a biblioteca 3D (three.js). Verifique a conexão e recarregue.</p>';
+    return;
+  }
+
+  /* ═══ Parâmetros (todas as medidas em milímetros) ═══ */
+  const P = {
+    escala: 1, parede: 5, canal: 114, vulva: 108, espinhas: 6, relevo: 10, abas: 30,
+    bebe: 0.86, descida: 0.62, pos: 'pelvico',
+    mostraBebe: true, corte: false, transp: false, eixo: false, girar: false
+  };
+
+  const CANAL_BASE = 114;          // diâmetro do estreito médio na tabela de perfil
+  const RES_TELA   = [104, 72];    // [estações, ângulos] na pré-visualização
+  const RES_STL    = [120, 80];    // resolução usada só na exportação
+
+  /* ═══ Utilidades ═══ */
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp  = (a, b, t) => a + (b - a) * t;
+  const sm = (u, a, b) => { const t = clamp((u - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const angDist = (a, b) => { let d = Math.abs(a - b) % (Math.PI * 2); return d > Math.PI ? Math.PI * 2 - d : d; };
+  const gauss = (x, s) => Math.exp(-(x / s) * (x / s));
+
+  /* ═══ Eixo do canal: linha média no plano sagital (curva de Carus) ═══ */
+  function eixo(u) {
+    const y = 265 - 320 * u;
+    const z = -22 + 34 * sm(u, 0, 0.38) - 16 * sm(u, 0.50, 0.80) + 30 * sm(u, 0.68, 1.06);
+    return new THREE.Vector3(0, y, z);
+  }
+  function tangente(u) {
+    const h = 0.002;
+    const a = eixo(clamp(u - h, 0, 1)), b = eixo(clamp(u + h, 0, 1));
+    return b.sub(a).normalize();
+  }
+
+  /* ═══ Perfil interno: semi-eixos transversal (a) e ântero-posterior (b) ═══ */
+  const PERFIL = [
+    [0.00,  86, 76],   // borda do fundo — abertura de inserção
+    [0.08,  95, 86],
+    [0.20, 100, 91],   // maior diâmetro da câmara
+    [0.34,  98, 89],
+    [0.46,  89, 79],
+    [0.56,  76, 66],
+    [0.66,  67, 57],   // estreito superior ≈ 134 × 114
+    [0.74,  60, 56],
+    [0.84,  57, 56],   // estreito médio ≈ 114 × 112
+    [0.93,  55, 57],
+    [1.00,  52, 60]    // abertura vulvar
+  ];
+
+  function perfil(u) {
+    let a = PERFIL[0][1], b = PERFIL[0][2];
+    for (let i = 1; i < PERFIL.length; i++) {
+      if (u <= PERFIL[i][0] || i === PERFIL.length - 1) {
+        const p = PERFIL[i - 1], q = PERFIL[i];
+        const t = clamp((u - p[0]) / (q[0] - p[0]), 0, 1);
+        a = lerp(p[1], q[1], t); b = lerp(p[2], q[2], t);
+        break;
+      }
+    }
+    const k = P.canal / CANAL_BASE, w = sm(u, 0.50, 0.74);
+    a *= lerp(1, k, w); b *= lerp(1, k, w);
+    const wv = sm(u, 0.90, 1.0);
+    a = lerp(a, P.vulva / 2, wv);
+    b = lerp(b, P.vulva / 2 * 1.18, wv);
+    return [a, b];
+  }
+
+  // Espinhas isquiáticas: reentrância interna nas laterais do estreito médio
+  function espinha(u, th) {
+    if (P.espinhas <= 0) return 0;
+    return P.espinhas * gauss(u - 0.80, 0.045) *
+           (gauss(angDist(th, 0), 0.45) + gauss(angDist(th, Math.PI), 0.45));
+  }
+  // Abas ilíacas: alargamento só externo, na altura do estreito superior
+  function abas(u, th) {
+    if (P.abas <= 0) return 0;
+    return P.abas * gauss(u - 0.60, 0.085) *
+           (gauss(angDist(th, 0), 0.95) + gauss(angDist(th, Math.PI), 0.95));
+  }
+  // Vulva: relevo só na superfície externa, junto da abertura
+  function relevo(u, th) {
+    if (P.relevo <= 0) return 0;
+    const labios = gauss(u - 1.0, 0.10) *
+                   (gauss(angDist(th, 0), 0.85) + gauss(angDist(th, Math.PI), 0.85));
+    const monte   = 0.55 * gauss(u - 0.90, 0.07) * gauss(angDist(th, Math.PI / 2), 0.9);
+    return P.relevo * (labios + monte);
+  }
+
+  /* ═══ Construção da pelve: casca fechada (externa + interna + bordas) ═══ */
+  function construirPelve(nU, nA) {
+    const nV = (nU + 1) * nA;
+    const pos = new Float32Array(nV * 2 * 3);
+    const eixoX = new THREE.Vector3(1, 0, 0);
+    const ev = new THREE.Vector3();
+    const anelInt = new Array(nA);
+    let canalMin = Infinity, vulvaMin = Infinity;
+
+    for (let i = 0; i <= nU; i++) {
+      const u = i / nU;
+      const C = eixo(u), T = tangente(u);
+      ev.crossVectors(T, eixoX).normalize();          // +ev aponta para anterior
+      const pr = perfil(u), a = pr[0], b = pr[1];
+
+      for (let j = 0; j < nA; j++) {
+        const th = (j / nA) * Math.PI * 2;
+        const ct = Math.cos(th), st = Math.sin(th);
+        const e = espinha(u, th);
+        const ai = Math.max(4, a - e), bi = Math.max(4, b - e);
+        const ext = P.parede + relevo(u, th) + abas(u, th);
+
+        const ix = C.x + ai * ct * eixoX.x + bi * st * ev.x;
+        const iy = C.y + ai * ct * eixoX.y + bi * st * ev.y;
+        const iz = C.z + ai * ct * eixoX.z + bi * st * ev.z;
+        const ao = a + ext, bo = b + ext;
+        const ox = C.x + ao * ct * eixoX.x + bo * st * ev.x;
+        const oy = C.y + ao * ct * eixoX.y + bo * st * ev.y;
+        const oz = C.z + ao * ct * eixoX.z + bo * st * ev.z;
+
+        const io = (i * nA + j) * 3, ii = (nV + i * nA + j) * 3;
+        pos[io] = ox; pos[io + 1] = oy; pos[io + 2] = oz;
+        pos[ii] = ix; pos[ii + 1] = iy; pos[ii + 2] = iz;
+        anelInt[j] = [ix, iy, iz];
+      }
+
+      // menor diâmetro interno (medido entre pontos opostos do anel)
+      if (u >= 0.60) {
+        let dMin = Infinity;
+        for (let j = 0; j < nA / 2; j++) {
+          const p = anelInt[j], q = anelInt[j + nA / 2 | 0];
+          const d = Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+          if (d < dMin) dMin = d;
+        }
+        if (u <= 0.90 && dMin < canalMin) canalMin = dMin;
+        if (i === nU) vulvaMin = dMin;
+      }
+    }
+
+    const idx = [];
+    const o = (i, j) => i * nA + j;
+    const n = (i, j) => nV + i * nA + j;
+    for (let i = 0; i < nU; i++) {
+      for (let j = 0; j < nA; j++) {
+        const j1 = (j + 1) % nA;
+        idx.push(o(i, j), o(i, j1), o(i + 1, j));          // externa: normal para fora
+        idx.push(o(i, j1), o(i + 1, j1), o(i + 1, j));
+        idx.push(n(i, j), n(i + 1, j), n(i, j1));          // interna: winding invertido
+        idx.push(n(i, j1), n(i + 1, j), n(i + 1, j1));
+      }
+    }
+    for (let j = 0; j < nA; j++) {                          // borda do fundo
+      const j1 = (j + 1) % nA;
+      idx.push(o(0, j), n(0, j), o(0, j1));
+      idx.push(n(0, j), n(0, j1), o(0, j1));
+    }
+    for (let j = 0; j < nA; j++) {                          // borda da vulva
+      const j1 = (j + 1) % nA;
+      idx.push(o(nU, j), o(nU, j1), n(nU, j));
+      idx.push(n(nU, j), o(nU, j1), n(nU, j1));
+    }
+
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
+    g.computeVertexNormals();
+    g.computeBoundingBox();
+    return { geom: g, canalMin: canalMin, vulvaMin: vulvaMin, tris: idx.length / 3 };
+  }
+
+  /* ═══ Bebê esquemático: sólidos de revolução ═══ */
+  const eixoY = new THREE.Vector3(0, 1, 0);
+
+  function capsula(p0, p1, r0, r1, seg) {
+    const L = p0.distanceTo(p1);
+    const pts = [];
+    for (let k = 0; k <= seg; k++) {
+      const a = -Math.PI / 2 + k * (Math.PI / 2) / seg;
+      pts.push(new THREE.Vector2(Math.cos(a) * r0, Math.sin(a) * r0));
+    }
+    for (let k = 0; k <= seg; k++) {
+      const a = k * (Math.PI / 2) / seg;
+      pts.push(new THREE.Vector2(Math.cos(a) * r1, L + Math.sin(a) * r1));
+    }
+    const g = new THREE.LatheGeometry(pts, 22);
+    const q = new THREE.Quaternion().setFromUnitVectors(
+      eixoY, new THREE.Vector3().subVectors(p1, p0).normalize());
+    const m = new THREE.Matrix4().compose(p0, q, new THREE.Vector3(1, 1, 1));
+    g.applyMatrix4(m);
+    return g;
+  }
+  function bola(x, y, z, r, sx, sy, sz) {
+    const g = new THREE.SphereGeometry(r, 26, 18);
+    g.applyMatrix4(new THREE.Matrix4().makeScale(sx || 1, sy || 1, sz || 1));
+    g.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, z));
+    return g;
+  }
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+  function construirBebe(bip) {
+    const r = bip / 2, gs = [];
+    gs.push(bola(0, 0, 0, r, 1, 1.06, 1.18));                                   // cabeça
+    gs.push(capsula(V(0, -0.98 * r, 0.05 * r), V(0, -1.95 * r, 0), 0.80 * r, 0.76 * r, 6));
+    gs.push(capsula(V(0, -1.95 * r, 0), V(0, -2.62 * r, -0.22 * r), 0.76 * r, 0.64 * r, 6));
+    gs.push(bola(0, -2.66 * r, -0.30 * r, 0.58 * r));                           // nádegas
+    for (let s = -1; s <= 1; s += 2) {
+      gs.push(capsula(V(s * 0.70 * r, -1.12 * r, 0.04 * r), V(s * 0.92 * r, -1.85 * r, 0.42 * r), 0.19 * r, 0.16 * r, 5));
+      gs.push(capsula(V(s * 0.92 * r, -1.85 * r, 0.42 * r), V(s * 0.42 * r, -2.12 * r, 0.60 * r), 0.16 * r, 0.13 * r, 5));
+      gs.push(bola(s * 0.40 * r, -2.16 * r, 0.63 * r, 0.15 * r));               // mão
+      gs.push(capsula(V(s * 0.42 * r, -2.58 * r, -0.10 * r), V(s * 0.60 * r, -1.85 * r, 0.55 * r), 0.27 * r, 0.21 * r, 5));
+      gs.push(capsula(V(s * 0.60 * r, -1.85 * r, 0.55 * r), V(s * 0.40 * r, -2.58 * r, 0.80 * r), 0.21 * r, 0.145 * r, 5));
+      gs.push(capsula(V(s * 0.40 * r, -2.58 * r, 0.80 * r), V(s * 0.36 * r, -2.76 * r, 0.99 * r), 0.15 * r, 0.11 * r, 4));
+    }
+
+    let total = 0;
+    const partes = gs.map(g => { const p = g.toNonIndexed(); total += p.attributes.position.count; return p; });
+    const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3);
+    let off = 0;
+    partes.forEach(p => {
+      pos.set(p.attributes.position.array, off);
+      nor.set(p.attributes.normal.array, off);
+      off += p.attributes.position.count * 3;
+    });
+    gs.forEach(g => g.dispose());
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    g.computeBoundingBox();
+    return { geom: g, cranio: 1.06 * r, nadegas: 3.24 * r, tris: total / 3 };
+  }
+
+  /* ═══ Cena ═══ */
+  const alvoEl = document.getElementById('cena');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.localClippingEnabled = true;
+  alvoEl.appendChild(renderer.domElement);
+
+  const cena = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 5, 6000);
+
+  cena.add(new THREE.HemisphereLight(0xffffff, 0x4a2a55, 0.55));
+  cena.add(new THREE.AmbientLight(0xffffff, 0.22));
+  const luz1 = new THREE.DirectionalLight(0xfff3e6, 0.95); luz1.position.set(420, 620, 700); cena.add(luz1);
+  const luz2 = new THREE.DirectionalLight(0xd6c2ff, 0.42); luz2.position.set(-560, 240, -420); cena.add(luz2);
+
+  const planoCorte = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
+
+  const matPelve = new THREE.MeshStandardMaterial({
+    color: 0xE3D9C8, roughness: 0.86, metalness: 0.02, side: THREE.DoubleSide
+  });
+  const matBebe = new THREE.MeshStandardMaterial({
+    color: 0x8E4F6E, roughness: 0.58, metalness: 0.03, side: THREE.DoubleSide
+  });
+
+  const meshPelve = new THREE.Mesh(new THREE.BufferGeometry(), matPelve);
+  cena.add(meshPelve);
+
+  const raizBebe = new THREE.Group();      // ancorado num ponto do eixo do canal
+  const poseBebe = new THREE.Group();      // apresentação (pélvica / cefálica / transversa)
+  const meshBebe = new THREE.Mesh(new THREE.BufferGeometry(), matBebe);
+  poseBebe.add(meshBebe); raizBebe.add(poseBebe); cena.add(raizBebe);
+
+  const ptsEixo = [];
+  for (let i = 0; i <= 120; i++) ptsEixo.push(eixo(i / 120));
+  const linhaEixo = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(ptsEixo),
+    new THREE.LineBasicMaterial({ color: 0xF5630A })
+  );
+  linhaEixo.visible = false; cena.add(linhaEixo);
+
+  /* ═══ Câmera orbital ═══ */
+  const alvo = new THREE.Vector3(0, 100, 0);
+  let theta = 0.62, phi = 1.28, dist = 900;
+  function posicionarCamera() {
+    phi = clamp(phi, 0.12, Math.PI - 0.12);
+    dist = clamp(dist, 180, 3000);
+    camera.position.set(
+      alvo.x + dist * Math.sin(phi) * Math.sin(theta),
+      alvo.y + dist * Math.cos(phi),
+      alvo.z + dist * Math.sin(phi) * Math.cos(theta)
+    );
+    camera.lookAt(alvo);
+  }
+
+  const cvs = renderer.domElement;
+  const ponteiros = new Map();
+  let ultDist = 0, ultMeio = null;
+
+  cvs.addEventListener('pointerdown', ev => {
+    cvs.setPointerCapture(ev.pointerId);
+    ponteiros.set(ev.pointerId, { x: ev.clientX, y: ev.clientY, botao: ev.button });
+    ultDist = 0; ultMeio = null;
+  });
+  cvs.addEventListener('pointerup', ev => { ponteiros.delete(ev.pointerId); ultDist = 0; ultMeio = null; });
+  cvs.addEventListener('pointercancel', ev => { ponteiros.delete(ev.pointerId); });
+  cvs.addEventListener('pointermove', ev => {
+    const p = ponteiros.get(ev.pointerId);
+    if (!p) return;
+    const dx = ev.clientX - p.x, dy = ev.clientY - p.y;
+    p.x = ev.clientX; p.y = ev.clientY;
+
+    if (ponteiros.size === 1) {
+      if (p.botao === 2 || p.botao === 1 || ev.shiftKey) deslocar(dx, dy);
+      else { theta -= dx * 0.006; phi -= dy * 0.006; }
+    } else if (ponteiros.size === 2) {
+      const v = Array.from(ponteiros.values());
+      const d = Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y);
+      const meio = { x: (v[0].x + v[1].x) / 2, y: (v[0].y + v[1].y) / 2 };
+      if (ultDist) dist *= ultDist / d;
+      if (ultMeio) deslocar(meio.x - ultMeio.x, meio.y - ultMeio.y);
+      ultDist = d; ultMeio = meio;
+    }
+    posicionarCamera();
+  });
+  cvs.addEventListener('contextmenu', ev => ev.preventDefault());
+  cvs.addEventListener('wheel', ev => {
+    ev.preventDefault();
+    dist *= Math.exp(clamp(ev.deltaY, -120, 120) * 0.0014);
+    posicionarCamera();
+  }, { passive: false });
+
+  const vx = new THREE.Vector3(), vy = new THREE.Vector3();
+  function deslocar(dx, dy) {
+    const k = dist * 0.0016;
+    camera.matrixWorld.extractBasis(vx, vy, new THREE.Vector3());
+    alvo.addScaledVector(vx, -dx * k).addScaledVector(vy, dy * k);
+  }
+
+  function redimensionar() {
+    const w = alvoEl.clientWidth, h = alvoEl.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  if (window.ResizeObserver) new ResizeObserver(redimensionar).observe(alvoEl);
+  window.addEventListener('resize', redimensionar);
+
+  const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function animar() {
+    requestAnimationFrame(animar);
+    if (P.girar && !semMovimento) { theta += 0.0035; posicionarCamera(); }
+    renderer.render(cena, camera);
+  }
+
+  /* ═══ Reconstrução ═══ */
+  let medidas = { canalMin: 0, vulvaMin: 0, caixa: new THREE.Vector3(), trisPelve: 0, trisBebe: 0 };
+
+  function reconstruirPelve() {
+    const r = construirPelve(RES_TELA[0], RES_TELA[1]);
+    meshPelve.geometry.dispose();
+    meshPelve.geometry = r.geom;
+    medidas.canalMin = r.canalMin;
+    medidas.vulvaMin = r.vulvaMin;
+    medidas.trisPelve = r.tris;
+    const bb = r.geom.boundingBox;
+    medidas.caixa = new THREE.Vector3().subVectors(bb.max, bb.min);
+  }
+
+  function reconstruirBebe() {
+    const bip = P.bebe * medidas.canalMin;
+    const r = construirBebe(bip);
+    meshBebe.geometry.dispose();
+    meshBebe.geometry = r.geom;
+    medidas.bip = bip;
+    medidas.trisBebe = r.tris;
+    medidas.cranio = r.cranio;
+    medidas.nadegas = r.nadegas;
+    posicionarBebe();
+  }
+
+  const e1 = new THREE.Vector3(1, 0, 0), e2 = new THREE.Vector3(), e3 = new THREE.Vector3();
+  function posicionarBebe() {
+    const u = P.descida;
+    const C = eixo(u), T = tangente(u);
+    e2.copy(T); e3.crossVectors(e1, e2).normalize();
+    raizBebe.position.copy(C);
+    raizBebe.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(e1, e2, e3));
+    poseBebe.rotation.set(0, 0, 0);
+    if (P.pos === 'cefalico') {
+      poseBebe.position.set(0, -medidas.cranio, 0);
+    } else if (P.pos === 'pelvico') {
+      poseBebe.rotation.x = Math.PI;
+      poseBebe.position.set(0, -medidas.nadegas, 0);
+    } else {
+      poseBebe.rotation.z = Math.PI / 2;
+      poseBebe.position.set(0, -0.35 * medidas.bip, 0);
+    }
+    raizBebe.visible = P.mostraBebe;
+  }
+
+  /* ═══ Leitura das medidas ═══ */
+  const $ = id => document.getElementById(id);
+  const mm = v => v.toFixed(0) + ' mm';
+
+  function pastilha(el, estado, texto) {
+    el.className = 'pastilha ' + estado;
+    el.textContent = texto;
+  }
+
+  function atualizarMedidas() {
+    const s = P.escala;
+    const canal = medidas.canalMin, bip = medidas.bip;
+    const folga = canal - bip, folgaV = medidas.vulvaMin - bip;
+    $('mCanal').textContent = mm(canal * s);
+    $('mBip').textContent = mm(bip * s);
+    $('mFolga').textContent = (folga >= 0 ? '+' : '') + mm(folga * s);
+    $('mFolgaV').textContent = (folgaV >= 0 ? '+' : '') + mm(folgaV * s);
+
+    const nota = (v, el) => {
+      if (v < 0) pastilha(el, 'p-erro', 'não passa');
+      else if (v < 6) pastilha(el, 'p-alerta', 'justo');
+      else pastilha(el, 'p-ok', 'passa');
+    };
+    nota(folga, $('pFolga'));
+    nota(folgaV, $('pFolgaV'));
+
+    const c = medidas.caixa;
+    const L = c.x * s, A = c.y * s, Pf = c.z * s;
+    $('mCaixa').textContent = L.toFixed(0) + '×' + A.toFixed(0) + '×' + Pf.toFixed(0);
+    const maior = Math.max(L, A, Pf);
+    if (maior <= 220) pastilha($('pCaixa'), 'p-ok', 'cabe em 220');
+    else if (maior <= 300) pastilha($('pCaixa'), 'p-alerta', 'precisa de 300');
+    else pastilha($('pCaixa'), 'p-alerta', 'reduza a escala');
+
+    const trisStl = RES_STL[0] * RES_STL[1] * 4 + RES_STL[1] * 4;
+    $('sPelve').textContent = 'STL · ' + (trisStl / 1000).toFixed(0) + 'k faces';
+    $('sBebe').textContent = 'STL · ' + (medidas.trisBebe / 1000).toFixed(0) + 'k faces';
+  }
+
+  function atualizarTudo() {
+    reconstruirPelve();
+    reconstruirBebe();
+    atualizarMedidas();
+  }
+
+  /* ═══ Exportação STL (ASCII) ═══ */
+  const f3 = v => (Math.abs(v) < 1e-4 ? 0 : v).toFixed(3);
+
+  function gerarSTL(nome, geom, matriz) {
+    const g = geom.index ? geom.toNonIndexed() : geom;
+    const pos = g.attributes.position.array;
+    const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+    const ab = new THREE.Vector3(), ac = new THREE.Vector3(), n = new THREE.Vector3();
+    const out = ['solid ' + nome + '\n'];
+    for (let i = 0; i < pos.length; i += 9) {
+      a.set(pos[i], pos[i + 1], pos[i + 2]).applyMatrix4(matriz);
+      b.set(pos[i + 3], pos[i + 4], pos[i + 5]).applyMatrix4(matriz);
+      c.set(pos[i + 6], pos[i + 7], pos[i + 8]).applyMatrix4(matriz);
+      ab.subVectors(b, a); ac.subVectors(c, a);
+      n.crossVectors(ab, ac);
+      if (n.lengthSq() > 0) n.normalize();
+      out.push(
+        'facet normal ' + f3(n.x) + ' ' + f3(n.y) + ' ' + f3(n.z) + '\nouter loop\n' +
+        'vertex ' + f3(a.x) + ' ' + f3(a.y) + ' ' + f3(a.z) + '\n' +
+        'vertex ' + f3(b.x) + ' ' + f3(b.y) + ' ' + f3(b.z) + '\n' +
+        'vertex ' + f3(c.x) + ' ' + f3(c.y) + ' ' + f3(c.z) + '\nendloop\nendfacet\n'
+      );
+    }
+    out.push('endsolid ' + nome + '\n');
+    if (g !== geom) g.dispose();
+    return out.join('');
+  }
+
+  /* ═══ Entrega do arquivo ═══ */
+  const noArtifact = !!(window.claude && typeof window.claude.use === 'function');
+  const promDownloads = noArtifact ? window.claude.use('downloads').catch(() => null)
+                                   : Promise.resolve(null);
+
+  let tToast;
+  function toast(msg) {
+    const el = $('toast');
+    el.textContent = msg; el.hidden = false;
+    clearTimeout(tToast);
+    tToast = setTimeout(() => { el.hidden = true; }, 7000);
+  }
+
+  async function entregar(base, texto) {
+    const blob = new Blob([texto], { type: 'model/stl' });
+    const kb = (blob.size / 1048576).toFixed(1);
+    const cap = await promDownloads;
+    if (cap) {
+      try {
+        await cap.save({ filename: base + '-stl.txt', data: blob });
+        toast('Salvo como ' + base + '-stl.txt (' + kb + ' MB). Renomeie para .stl antes de abrir no fatiador — o visualizador só aceita extensões de texto.');
+      } catch (e) {
+        const cod = (e && e.code) || 'erro';
+        if (cod === 'declined') return;
+        toast('Não deu para entregar o arquivo aqui (' + cod + '). Abra o modelo-pelve-3d.html direto do repositório para baixar o .stl.');
+      }
+      return;
+    }
+    if (noArtifact) {
+      toast('O download não está liberado neste visualizador. Abra o modelo-pelve-3d.html do repositório no navegador para gerar o .stl.');
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = base + '.stl';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast(base + '.stl gerado (' + kb + ' MB) na escala de ' + Math.round(P.escala * 100) + '%.');
+  }
+
+  function exportar(botao, base, construtor) {
+    botao.disabled = true;
+    toast('Gerando ' + base + '…');
+    setTimeout(() => {
+      try {
+        const m = new THREE.Matrix4().makeScale(P.escala, P.escala, P.escala);
+        const g = construtor();
+        entregar(base, gerarSTL(base, g, m));
+        g.dispose();
+      } catch (err) {
+        toast('Falhou ao gerar o STL: ' + (err && err.message ? err.message : err));
+      } finally {
+        botao.disabled = false;
+      }
+    }, 40);
+  }
+
+  $('bPelve').addEventListener('click', () =>
+    exportar($('bPelve'), 'pelve-obstetrica', () => construirPelve(RES_STL[0], RES_STL[1]).geom));
+  $('bBebe').addEventListener('click', () =>
+    exportar($('bBebe'), 'bebe', () => construirBebe(medidas.bip).geom));
+
+  /* ═══ Controles ═══ */
+  let pendente = false;
+  function agendar(completo) {
+    if (pendente) return;
+    pendente = true;
+    requestAnimationFrame(() => {
+      pendente = false;
+      if (completo) atualizarTudo();
+      else { posicionarBebe(); atualizarMedidas(); }
+    });
+  }
+
+  function faixa(id, saida, chave, fator, formato, completo) {
+    const el = $(id), out = $(saida);
+    const aplicar = () => {
+      P[chave] = parseFloat(el.value) * fator;
+      out.textContent = formato(parseFloat(el.value));
+      agendar(completo);
+    };
+    el.addEventListener('input', aplicar);
+    aplicar();
+  }
+
+  const emMm = v => v + ' mm';
+  faixa('cEscala',   'oEscala',   'escala',   0.01, v => v + '%',  false);
+  faixa('cParede',   'oParede',   'parede',   1,    emMm,          true);
+  faixa('cCanal',    'oCanal',    'canal',    1,    emMm,          true);
+  faixa('cVulva',    'oVulva',    'vulva',    1,    emMm,          true);
+  faixa('cAbas',     'oAbas',     'abas',     1,    emMm,          true);
+  faixa('cEspinhas', 'oEspinhas', 'espinhas', 1,    emMm,          true);
+  faixa('cRelevo',   'oRelevo',   'relevo',   1,    emMm,          true);
+  faixa('cBebe',     'oBebe',     'bebe',     0.01, v => v + '%',  true);
+  faixa('cDescida',  'oDescida',  'descida',  0.01, v => v + '%',  false);
+
+  document.querySelectorAll('.segmentos button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.segmentos button').forEach(o => o.setAttribute('aria-pressed', 'false'));
+      b.setAttribute('aria-pressed', 'true');
+      P.pos = b.dataset.pos;
+      posicionarBebe();
+    });
+  });
+
+  function chave(id, fn) {
+    const el = $(id);
+    el.addEventListener('change', () => fn(el.checked));
+  }
+  chave('cMostraBebe', v => { P.mostraBebe = v; raizBebe.visible = v; });
+  chave('cCorte', v => {
+    P.corte = v;
+    const planos = v ? [planoCorte] : [];
+    matPelve.clippingPlanes = planos; matPelve.needsUpdate = true;
+    matBebe.clippingPlanes = planos; matBebe.needsUpdate = true;
+  });
+  chave('cTransp', v => {
+    P.transp = v;
+    matPelve.transparent = v;
+    matPelve.opacity = v ? 0.38 : 1;
+    matPelve.depthWrite = !v;
+    matPelve.needsUpdate = true;
+  });
+  chave('cEixo', v => { linhaEixo.visible = v; $('legEixo').hidden = !v; });
+  chave('cGirar', v => { P.girar = v; });
+
+  /* ═══ Início ═══ */
+  atualizarTudo();
+  const bb = meshPelve.geometry.boundingBox;
+  alvo.set(0, (bb.min.y + bb.max.y) / 2, 0);
+  dist = Math.max(bb.max.y - bb.min.y, bb.max.x - bb.min.x) * 0.62 /
+         Math.tan(camera.fov * Math.PI / 360) * 1.05;
+  posicionarCamera();
+  redimensionar();
+  animar();
+})();
+</script>
+</body>
+</html>
