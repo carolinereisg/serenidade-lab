@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardiotoco: padrões que não podem ser perdidos — Serenidade Lab</title>
+<meta name="description" content="Aula com Caroline Reis: sinusoidal × pseudossinusoidal, desacelerações recorrentes com variabilidade reduzida e os riscos que o CTG ainda não mostrou.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="serenidade.css">
+<style>
+  /* ── HERO ── */
+  .hero { padding: 48px 0 56px; text-align: center; }
+  .hero h1 {
+    font-size: clamp(1.7rem, 5.5vw, 2.7rem);
+    font-weight: 900;
+    color: white;
+    margin-bottom: 16px;
+  }
+  .hero-sub { color: var(--roxo-suave); font-weight: 300; max-width: 560px; margin: 0 auto 28px; }
+
+  .video {
+    position: relative;
+    width: 100%;
+    max-width: 380px;           /* VSL vertical 9:16 */
+    aspect-ratio: 9 / 16;
+    margin: 0 auto 28px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #1b0632;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    border: 1px solid rgba(196,168,232,0.2);
+  }
+  .video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .video-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    color: var(--roxo-suave); font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; padding: 24px;
+  }
+  .play {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--laranja); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 10px rgba(245,99,10,0.18);
+  }
+
+  .hero .btn-nota { color: var(--roxo-suave); }
+
+  /* ── estudo ── */
+  .citacao {
+    background: white;
+    border-radius: 18px;
+    padding: 22px 22px 20px;
+    box-shadow: 0 6px 28px rgba(45,10,78,0.08);
+    margin-bottom: 28px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--roxo-escuro);
+    line-height: 1.4;
+  }
+  .citacao small {
+    display: block; margin-top: 10px;
+    font-family: 'DM Mono', monospace; font-style: normal; font-size: 0.62rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--roxo-claro);
+  }
+  .grande-num {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 12vw, 4.5rem);
+    font-weight: 900;
+    color: var(--laranja);
+    line-height: 1;
+  }
+
+  /* ── parece × pode ser ── */
+  .comparacao { display: grid; gap: 12px; margin: 24px 0; }
+  .comp-linha {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;
+    background: white; border-radius: 14px; padding: 14px 16px;
+    box-shadow: 0 4px 18px rgba(45,10,78,0.06);
+  }
+  .comp-linha div { font-size: 0.9rem; }
+  .comp-parece { color: var(--texto-suave); }
+  .comp-real { color: var(--roxo-escuro); font-weight: 600; }
+  .comp-seta { color: var(--laranja); font-weight: 700; }
+  .comp-cab { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--roxo-claro); padding: 0 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; }
+
+  /* ── professora ── */
+  .prof-foto {
+    width: 100%; max-width: 360px; aspect-ratio: 4 / 5; margin: 0 auto 28px;
+    border-radius: 22px; overflow: hidden;
+    background: linear-gradient(135deg, var(--roxo-medio), var(--roxo-claro));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 900; color: white;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  .prof-foto img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ── depoimentos ── */
+  .depo-trilho { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 2px 16px; }
+  .depo-trilho .card { flex: 0 0 85%; max-width: 340px; scroll-snap-align: start; }
+  .depo-autor { margin-top: 12px; font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--roxo-claro); }
+
+  /* ── oferta ── */
+  .oferta { text-align: center; }
+  .preco { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.5rem; color: var(--roxo-escuro); margin: 28px 0 6px; }
+  .preco span { color: var(--laranja); font-size: 2.2rem; font-style: normal; }
+
+  /* ── FAQ ── */
+  details {
+    background: white; border-radius: 14px; margin-bottom: 12px;
+    box-shadow: 0 4px 18px rgba(45,10,78,0.06); border: 1px solid rgba(45,10,78,0.06);
+  }
+  summary {
+    cursor: pointer; list-style: none; padding: 18px 20px; font-weight: 600; color: var(--roxo-escuro);
+    display: flex; justify-content: space-between; gap: 12px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; color: var(--laranja); font-size: 1.3rem; line-height: 1; }
+  details[open] summary::after { content: '–'; }
+  details p { padding: 0 20px 18px; margin: 0; color: var(--texto-suave); font-size: 0.93rem; }
+
+  /* ── CTA fixo ── */
+  .cta-fixo {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(253,248,242,0.94); backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(45,10,78,0.08);
+    display: flex; justify-content: center;
+    transform: translateY(110%); transition: transform 0.3s;
+  }
+  .cta-fixo.visivel { transform: translateY(0); }
+  .cta-fixo .btn { padding: 14px 24px; font-size: 0.85rem; }
+  body { padding-bottom: 84px; }
+</style>
+</head>
+<body>
+
+<!-- ══ FAIXA ══ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>⚠ Sinusoidal × pseudossinusoidal</span><span>Desacelerações + variabilidade reduzida</span><span>CTG normal não descarta DPP inicial</span><span>Aula com Caroline Reis</span>
+    <span>⚠ Sinusoidal × pseudossinusoidal</span><span>Desacelerações + variabilidade reduzida</span><span>CTG normal não descarta DPP inicial</span><span>Aula com Caroline Reis</span>
+  </div>
+</div>
+
+<!-- ══ HERO + VSL ══ -->
+<section class="escura hero">
+  <div class="wrap">
+    <span class="badge">Serenidade Lab · Aula de Cardiotocografia</span>
+    <h1>Se a sua leitura de cardiotoco ainda é "reativo ou não reativo", você pode estar deixando passar <span>o traçado que mais importa.</span></h1>
+    <p class="hero-sub">Assista ao vídeo abaixo e entenda por que os padrões mais graves do CTG costumam ser lidos como "tranquilos" — e como treinar o seu olhar para não deixá-los passar.</p>
+
+    <div class="video" id="video"></div>
+
+    <a href="captura.html" class="btn">Quero aprender a reconhecer os padrões graves</a>
+    <p class="btn-nota">Aula online · acesso imediato</p>
+  </div>
+</section>
+
+<!-- ══ O ESTUDO ══ -->
+<section class="secao branca">
+  <div class="wrap">
+    <div class="citacao">
+      "Olhar não é o mesmo que enxergar."
+      <small>// A ideia central desta aula</small>
+    </div>
+    <span class="eyebrow">// O estudo do gorila</span>
+    <h2>Em 2013, pesquisadores esconderam um <span>gorila</span> dentro de uma tomografia.</h2>
+    <p>Radiologistas experientes foram convidados a procurar nódulos pulmonares — uma tarefa que fazem todos os dias. Em uma das imagens havia um gorila muitas vezes maior que os nódulos.</p>
+    <div class="grande-num">20 de 24</div>
+    <p><strong>não viram o gorila.</strong> E o rastreamento ocular mostrou que muitos deles olharam exatamente para o local onde ele estava.</p>
+    <p>O problema não era o equipamento, nem a experiência, nem a inteligência. <strong>Era o padrão de busca.</strong> O que o cérebro não está treinado para procurar, ele apaga.</p>
+  </div>
+</section>
+
+<!-- ══ O PONTO CEGO NO CTG ══ -->
+<section class="secao lilas">
+  <div class="wrap">
+    <span class="eyebrow">// O ponto cego do plantão</span>
+    <h2>No CTG, o grave nem sempre <span>parece grave.</span></h2>
+    <p>Bradicardia de 70 bpm todo mundo vê. O que muda desfecho, muitas vezes, é o que é <strong>pequeno, silencioso ou parecido com o normal</strong>.</p>
+
+    <div class="comparacao">
+      <div class="comp-cab"><span>O que parece</span><span></span><span>O que pode ser</span></div>
+      <div class="comp-linha">
+        <div class="comp-parece">"Ondulação bonita, com variabilidade"</div><div class="comp-seta">→</div>
+        <div class="comp-real">Padrão sinusoidal: anemia fetal grave</div>
+      </div>
+      <div class="comp-linha">
+        <div class="comp-parece">"Desacelerações pequenas, de 10 bpm"</div><div class="comp-seta">→</div>
+        <div class="comp-real">Tardias rasas e recorrentes com variabilidade caindo</div>
+      </div>
+      <div class="comp-linha">
+        <div class="comp-parece">"Bebê dormindo, traçado liso"</div><div class="comp-seta">→</div>
+        <div class="comp-real">Variabilidade reduzida persistente</div>
+      </div>
+      <div class="comp-linha">
+        <div class="comp-parece">"CTG normal, pode aguardar"</div><div class="comp-seta">→</div>
+        <div class="comp-real">DPP inicial: a pista está na clínica e na contração</div>
+      </div>
+    </div>
+
+    <p>Enxergar o "gorila grande" é fácil. <strong>Enxergar o pequeno exige treinamento.</strong></p>
+  </div>
+</section>
+
+<!-- ══ O OLHAR MUDOU ══ -->
+<section class="secao escura">
+  <div class="wrap centro">
+    <span class="badge">A área evoluiu</span>
+    <h2>O olhar para a cardiotoco <span>mudou.</span></h2>
+    <p>As classificações foram revistas (FIGO, ACOG, SOGC). Não basta mais perguntar "é reativo?". É preciso ler linha de base, variabilidade, desacelerações, contexto clínico — e <strong>como o traçado evolui no tempo</strong>.</p>
+    <div class="destaque-laranja" style="text-align:left;margin-top:28px;">
+      <p>Se você aprendeu CTG há alguns anos e não se atualizou, é possível que tenha <strong>lacunas reais</strong> na sua leitura. <strong>Isso não é incompetência</strong> — é que quase ninguém atualizou o padrão de busca de quem está na linha de frente.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ O QUE VOCÊ VAI APRENDER ══ -->
+<section class="secao branca">
+  <div class="wrap">
+    <span class="eyebrow">// Conteúdo da aula</span>
+    <h2>Nessa aula eu vou te <span>mostrar:</span></h2>
+    <div class="grid grid-2">
+      <div class="card"><div class="num">1</div><h3>O padrão sinusoidal</h3><p>O verdadeiro, o atípico e como diferenciar do pseudossinusoidal — que assusta mas costuma ser benigno.</p></div>
+      <div class="card"><div class="num">2</div><h3>Desacelerações recorrentes + variabilidade reduzida</h3><p>A combinação que indica que o bebê está deixando de compensar — inclusive as desacelerações rasas.</p></div>
+      <div class="card"><div class="num">3</div><h3>Redução da variabilidade</h3><p>Quando é sono, quando é medicação, quando é prematuridade — e quando é hipóxia.</p></div>
+      <div class="card"><div class="num">4</div><h3>O risco que o CTG não mostra</h3><p>Situações como o DPP inicial, em que a frequência cardíaca ainda está normal e a resposta está em outro lugar.</p></div>
+    </div>
+    <div class="destaque-laranja" style="margin-top:20px;">
+      <p>Com <strong>traçados reais</strong> para treinar o olhar e um <strong>roteiro de leitura</strong> para aplicar no próximo plantão.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PARA QUEM É ══ -->
+<section class="secao lilas">
+  <div class="wrap">
+    <h2 class="centro">Essa aula é para você que <span>lê cardiotoco.</span></h2>
+    <div class="grid" style="margin-top:24px;">
+      <div class="card"><h3>Obstetra e plantonista de maternidade</h3><p>Que precisa decidir rápido — e não quer depender do "acho que está tudo bem".</p></div>
+      <div class="card"><h3>Residente de GO</h3><p>Que quer sair da decoreba de "reativo / não reativo" e entender a fisiologia por trás de cada padrão.</p></div>
+      <div class="card"><h3>Enfermeira obstétrica</h3><p>Que acompanha o trabalho de parto e precisa saber quando um traçado exige chamar ajuda agora.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROFESSORA ══ -->
+<section class="secao escura">
+  <div class="wrap">
+    <div class="prof-foto" id="prof-foto">CR</div>
+    <span class="eyebrow">// Conheça sua professora</span>
+    <h2>Caroline <span>Reis</span></h2>
+    <!-- EDITAR: substitua pelo seu minicurrículo real -->
+    <p>[Sua formação e especialidade — ex.: médica obstetra, onde se formou, título de especialista.]</p>
+    <p>[Sua experiência com medicina fetal / sala de parto / ensino.] Idealizadora do Serenidade Lab e criadora de um aplicativo de apoio à classificação da cardiotocografia anteparto pelo modelo SOGC.</p>
+    <ul class="check-list" style="margin-top:20px;">
+      <li>[Credencial 1]</li>
+      <li>Capacitações presenciais em VCE e Parto Pélvico</li>
+      <li>Criadora do app de classificação de CTG anteparto (SOGC)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ DEPOIMENTOS ══ -->
+<section class="secao branca">
+  <div class="wrap">
+    <h2 class="centro">O que dizem sobre a forma de ensinar da <span>Caroline</span></h2>
+    <!-- EDITAR: troque por depoimentos reais (texto ou prints) -->
+    <div class="depo-trilho" style="margin-top:24px;">
+      <div class="card"><p>"[Depoimento real de aluna/aluno]"</p><div class="depo-autor">— Nome, profissão</div></div>
+      <div class="card"><p>"[Depoimento real de aluna/aluno]"</p><div class="depo-autor">— Nome, profissão</div></div>
+      <div class="card"><p>"[Depoimento real de aluna/aluno]"</p><div class="depo-autor">— Nome, profissão</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ OFERTA ══ -->
+<section class="secao lilas oferta" id="oferta">
+  <div class="wrap">
+    <h2>O que você recebe ao <span>garantir sua vaga</span></h2>
+    <div class="card" style="text-align:left;margin-top:24px;">
+      <ul class="check-list">
+        <li>Aula completa "Cardiotocografia: os padrões que não podem ser perdidos", com Caroline Reis.</li>
+        <li>Acesso à gravação por <strong data-config="acesso"></strong> para rever quantas vezes precisar.</li>
+        <li>Condições exclusivas para a formação completa, reveladas no fim da aula.</li>
+      </ul>
+    </div>
+    <p class="preco">Garanta sua vaga agora por apenas <span data-config="preco"></span></p>
+    <p style="font-size:0.85rem;">Um investimento menor do que um plantão, para mudar a forma como você lê cada traçado.</p>
+    <a href="captura.html" class="btn" style="margin-top:12px;">Quero começar a enxergar esses padrões agora</a>
+  </div>
+</section>
+
+<!-- ══ FAQ ══ -->
+<section class="secao branca">
+  <div class="wrap">
+    <h2 class="centro" style="margin-bottom:24px;">Dúvidas <span>frequentes</span></h2>
+    <details><summary>A aula é ao vivo?</summary><p>Não. A aula é gravada e você recebe acesso logo após a confirmação do pagamento.</p></details>
+    <details><summary>Serve para quem já tem experiência com cardiotoco?</summary><p>Sim. O foco não é o básico: são os padrões graves que passam despercebidos mesmo por quem lê CTG todos os dias, e como eles se encaixam nas classificações atuais.</p></details>
+    <details><summary>Sou enfermeira obstétrica / residente. A aula é para mim?</summary><p>Sim. A aula foi pensada para quem lê traçados na assistência, em qualquer etapa da formação.</p></details>
+    <details><summary>A aula usa o modelo SOGC?</summary><p>A aula mostra os padrões graves à luz das principais classificações (FIGO, ACOG e SOGC). A aplicação detalhada do modelo SOGC no CTG anteparto é tema da formação completa.</p></details>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Serenidade<span>Lab</span></div>
+  <span class="footer-txt">Conteúdo educacional para profissionais de saúde</span>
+</footer>
+
+<div class="cta-fixo" id="cta-fixo"><a href="captura.html" class="btn">Garantir minha vaga</a></div>
+
+<script>
+  // ══════════════════════════════════════════════════════
+  // CONFIGURAÇÃO — edite aqui
+  // ══════════════════════════════════════════════════════
+  const CONFIG = {
+    // Link de incorporação do vídeo (YouTube "embed", Vimeo "player", Panda etc.).
+    // Deixe vazio para mostrar o espaço reservado.
+    videoEmbedUrl: '',
+    fotoProfessora: '',            // ex.: 'foto-caroline.jpg' (mesma pasta)
+    preco: 'R$ 147',
+    acesso: '12 meses',            // EDITAR: prazo de acesso à gravação
+  };
+  // ══════════════════════════════════════════════════════
+
+  const video = document.getElementById('video');
+  if (CONFIG.videoEmbedUrl) {
+    const f = document.createElement('iframe');
+    f.src = CONFIG.videoEmbedUrl;
+    f.allow = 'autoplay; fullscreen; picture-in-picture';
+    f.allowFullscreen = true;
+    f.title = 'Vídeo da aula';
+    video.appendChild(f);
+  } else {
+    video.innerHTML = '<div class="video-placeholder"><div class="play"><svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>Espaço do vídeo (VSL)<br>defina CONFIG.videoEmbedUrl</div>';
+  }
+
+  if (CONFIG.fotoProfessora) {
+    document.getElementById('prof-foto').innerHTML = '<img src="' + CONFIG.fotoProfessora + '" alt="Caroline Reis">';
+  }
+
+  document.querySelectorAll('[data-config]').forEach(el => { el.textContent = CONFIG[el.dataset.config]; });
+
+  // CTA fixo aparece depois que o hero sai da tela
+  const cta = document.getElementById('cta-fixo');
+  const hero = document.querySelector('.hero');
+  new IntersectionObserver(([e]) => cta.classList.toggle('visivel', !e.isIntersecting)).observe(hero);
+</script>
+</body>
+</html>

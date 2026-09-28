@@ -1,0 +1,209 @@
+/* ══════════════════════════════════════════════════════
+   Serenidade Lab — estilos compartilhados do funil VSL
+   (mesma paleta e tipografia de mapa-profissionais.html)
+   ══════════════════════════════════════════════════════ */
+:root {
+  --roxo-escuro: #2D0A4E;
+  --roxo-medio: #5B2D8E;
+  --roxo-claro: #8B5CC8;
+  --roxo-suave: #C4A8E8;
+  --laranja: #F5630A;
+  --laranja-claro: #FF8C42;
+  --creme: #FDF8F2;
+  --branco: #FFFFFF;
+  --cinza-escuro: #1A1A2E;
+  --texto: #2D0A4E;
+  --texto-suave: #5d4a73;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--creme);
+  color: var(--texto);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+img { max-width: 100%; display: block; }
+
+.wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 20px; }
+.wrap-lg { width: 100%; max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+/* ── faixa rolante ── */
+.ticker {
+  background: var(--laranja);
+  color: white;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 8px 0;
+}
+.ticker-track { display: inline-block; animation: ticker 28s linear infinite; }
+.ticker-track span { margin: 0 28px; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
+
+/* ── elementos comuns ── */
+.badge {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--laranja-claro);
+  border: 1px solid rgba(255,140,66,0.35);
+  padding: 5px 14px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+.badge.claro { color: var(--laranja); border-color: rgba(245,99,10,0.35); }
+
+.eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--laranja);
+  display: block;
+  margin-bottom: 12px;
+}
+
+h1, h2, h3 { font-family: 'Playfair Display', serif; line-height: 1.15; }
+h1 span, h2 span, h3 span { color: var(--laranja); font-style: italic; }
+
+.secao { padding: 64px 0; }
+.secao h2 { font-size: clamp(1.6rem, 4.5vw, 2.3rem); font-weight: 900; margin-bottom: 18px; }
+.secao p { margin-bottom: 14px; color: var(--texto-suave); }
+.secao p strong { color: var(--texto); }
+.centro { text-align: center; }
+
+.escura {
+  background: var(--roxo-escuro);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.escura::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 460px; height: 460px;
+  background: radial-gradient(circle, rgba(245,99,10,0.16) 0%, transparent 70%);
+  pointer-events: none;
+}
+.escura > * { position: relative; }
+.escura p { color: var(--roxo-suave); }
+.escura p strong { color: white; }
+.escura h2 { color: white; }
+
+.lilas { background: linear-gradient(180deg, #FFFFFF 0%, #F1E9FA 100%); }
+.branca { background: var(--branco); }
+
+/* ── botão ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--laranja), #E8450A);
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  padding: 18px 34px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(245,99,10,0.38);
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+  max-width: 440px;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(245,99,10,0.45); }
+.btn:focus-visible { outline: 3px solid var(--roxo-suave); outline-offset: 3px; }
+.btn-nota {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 12px;
+  opacity: 0.75;
+}
+
+/* ── cards ── */
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 24px 22px;
+  box-shadow: 0 6px 28px rgba(45,10,78,0.08);
+  border: 1px solid rgba(45,10,78,0.06);
+}
+.card h3 { font-size: 1.12rem; margin-bottom: 8px; color: var(--roxo-escuro); }
+.card p { font-size: 0.93rem; margin-bottom: 0; }
+
+.grid { display: grid; gap: 16px; }
+@media (min-width: 720px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+.num {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(245,99,10,0.12);
+  color: var(--laranja);
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+
+.check-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.check-list li { position: relative; padding-left: 34px; color: var(--texto-suave); }
+.check-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 2px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--laranja);
+  background: radial-gradient(circle, var(--laranja) 0 4px, transparent 5px);
+}
+.escura .check-list li { color: rgba(255,255,255,0.8); }
+
+.destaque-laranja {
+  background: linear-gradient(135deg, var(--laranja), #D8440A);
+  color: white;
+  border-radius: 18px;
+  padding: 26px 24px;
+  box-shadow: 0 10px 30px rgba(245,99,10,0.3);
+}
+.destaque-laranja p { color: rgba(255,255,255,0.92); margin: 0; }
+.destaque-laranja strong { color: white; }
+
+/* ── rodapé ── */
+footer {
+  background: var(--cinza-escuro);
+  padding: 32px 5vw;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.footer-logo { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem; color: white; }
+.footer-logo span { color: var(--laranja); }
+.footer-txt {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}

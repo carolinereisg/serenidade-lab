@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sua vaga na aula de Cardiotocografia — Serenidade Lab</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="serenidade.css">
+<style>
+  .topo { padding: 44px 0 110px; text-align: center; }
+  .passos { display: flex; gap: 8px; margin: 0 auto 22px; max-width: 480px; }
+  .passo { flex: 1; height: 4px; border-radius: 4px; background: var(--laranja); }
+  .topo h1 { color: white; font-size: clamp(1.6rem, 5vw, 2.3rem); font-weight: 900; margin-bottom: 12px; }
+  .topo p { color: var(--roxo-suave); font-weight: 300; max-width: 520px; margin: 0 auto; }
+
+  .caixa {
+    background: white; border-radius: 24px; padding: 30px 24px;
+    box-shadow: 0 24px 60px rgba(45,10,78,0.18);
+    margin-top: -80px; position: relative; z-index: 2;
+    max-width: 480px; margin-left: auto; margin-right: auto;
+  }
+  .produto { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.2rem; color: var(--roxo-escuro); line-height: 1.3; margin-bottom: 20px; }
+  .produto small { display: block; font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 0.85rem; color: var(--texto-suave); margin-top: 4px; }
+
+  .de { color: #9a8aa8; text-decoration: line-through; font-size: 1.05rem; }
+  .por-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--roxo-claro); margin-top: 8px; }
+  .por { font-family: 'Playfair Display', serif; font-weight: 900; font-size: clamp(2.8rem, 12vw, 3.6rem); color: var(--laranja); line-height: 1.05; }
+  .parcela { color: var(--texto-suave); font-size: 0.95rem; margin-top: 4px; }
+  .economia {
+    display: inline-block; margin-top: 12px; padding: 5px 12px; border-radius: 100px;
+    background: rgba(245,99,10,0.1); color: var(--laranja);
+    font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .sep { height: 1px; background: rgba(45,10,78,0.08); margin: 22px 0; }
+  .check-list li { font-size: 0.93rem; }
+  .btn { max-width: none; margin-top: 24px; }
+  .garantia {
+    display: flex; gap: 12px; align-items: flex-start; margin-top: 20px;
+    background: var(--creme); border-radius: 14px; padding: 14px 16px; font-size: 0.85rem; color: var(--texto-suave);
+  }
+  .garantia svg { flex-shrink: 0; color: var(--roxo-medio); margin-top: 2px; }
+  main { padding-bottom: 56px; }
+</style>
+</head>
+<body>
+
+<section class="escura topo">
+  <div class="wrap">
+    <div class="passos" aria-label="Etapa 2 de 2"><div class="passo"></div><div class="passo"></div></div>
+    <span class="badge">Etapa 2 de 2 · Condição liberada</span>
+    <h1><b id="saudacao" style="font-weight:900">Sua vaga</b> está <span>reservada.</span></h1>
+    <p>Finalize agora para receber acesso imediato à aula.</p>
+  </div>
+</section>
+
+<main>
+  <div class="wrap">
+    <div class="caixa">
+      <div class="produto">
+        Aula: Cardiotocografia — os padrões que não podem ser perdidos
+        <small>com Caroline Reis · Serenidade Lab</small>
+      </div>
+
+      <div class="de" id="preco-de"></div>
+      <div class="por-label">Hoje, por apenas</div>
+      <div class="por" id="preco-por"></div>
+      <div class="parcela" id="parcela"></div>
+      <div class="economia" id="economia"></div>
+
+      <div class="sep"></div>
+
+      <ul class="check-list">
+        <li>Padrão sinusoidal, sinusoidal atípico e pseudossinusoidal</li>
+        <li>Desacelerações recorrentes com variabilidade reduzida</li>
+        <li>Redução da variabilidade: sono, medicação ou hipóxia?</li>
+        <li>O risco que o CTG ainda não mostra (ex.: DPP inicial)</li>
+        <li>Acesso à gravação por <strong id="acesso"></strong></li>
+      </ul>
+
+      <a class="btn" id="btn-checkout" href="#">Garantir minha vaga agora</a>
+
+      <div class="garantia">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <div><strong>Compra segura.</strong> <span id="garantia-txt"></span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-logo">Serenidade<span>Lab</span></div>
+  <span class="footer-txt">Conteúdo educacional para profissionais de saúde</span>
+</footer>
+
+<script>
+  // ══════════════════════════════════════════════════════
+  // CONFIGURAÇÃO — edite aqui
+  // ══════════════════════════════════════════════════════
+  const CONFIG = {
+    precoDe: 0,          // EDITAR: preço de ancoragem (ex.: 397). 0 = não mostra o "De".
+    precoPor: 147,
+    parcelas: 0,         // EDITAR: nº de parcelas (ex.: 6). 0 = não mostra.
+    valorParcela: 0,     // EDITAR: valor exato da parcela com juros, conforme seu gateway.
+    acesso: '12 meses',  // EDITAR: prazo de acesso à gravação
+    // Texto de garantia: o CDC prevê arrependimento em 7 dias para compras online —
+    // confirme com seu gateway/contador antes de publicar.
+    garantia: 'Você tem 7 dias para pedir reembolso, conforme o direito de arrependimento.',
+    checkoutUrl: '',     // EDITAR: link do checkout (Hotmart, Kiwify, Assiny etc.)
+  };
+  // ══════════════════════════════════════════════════════
+
+  const brl = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  document.getElementById('preco-por').textContent = brl(CONFIG.precoPor);
+  document.getElementById('acesso').textContent = CONFIG.acesso;
+  document.getElementById('garantia-txt').textContent = CONFIG.garantia;
+
+  if (CONFIG.precoDe > CONFIG.precoPor) {
+    document.getElementById('preco-de').textContent = 'De ' + brl(CONFIG.precoDe);
+    const pct = Math.round((1 - CONFIG.precoPor / CONFIG.precoDe) * 100);
+    document.getElementById('economia').textContent = pct + '% de desconto nesta página';
+  } else {
+    document.getElementById('preco-de').remove();
+    document.getElementById('economia').remove();
+  }
+
+  if (CONFIG.parcelas && CONFIG.valorParcela) {
+    document.getElementById('parcela').textContent = 'ou ' + CONFIG.parcelas + 'x de ' + brl(CONFIG.valorParcela) + ' no cartão';
+  } else {
+    document.getElementById('parcela').textContent = 'à vista no Pix ou cartão';
+  }
+
+  const btn = document.getElementById('btn-checkout');
+  if (CONFIG.checkoutUrl) {
+    btn.href = CONFIG.checkoutUrl;
+  } else {
+    btn.addEventListener('click', e => { e.preventDefault(); alert('Configure CONFIG.checkoutUrl com o link do seu checkout.'); });
+  }
+
+  try {
+    const lead = JSON.parse(sessionStorage.getItem('lead') || 'null');
+    if (lead && lead.nome) document.getElementById('saudacao').textContent = lead.nome.split(' ')[0] + ', sua vaga';
+  } catch (_) {}
+</script>
+</body>
+</html>
